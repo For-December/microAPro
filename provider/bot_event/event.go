@@ -10,12 +10,18 @@ import (
 
 var client *gws.Conn
 
+func Start() {
+	initClient()
+	runDispatcher()
+
+	client.ReadLoop()
+}
 func Stop() {
 	client.WriteClose(1000, nil)
 	println("stop event")
 }
 
-func Start() {
+func initClient() {
 	var err error
 	client, _, err = gws.NewClient(&handler{}, &gws.ClientOption{
 		Addr: define.BotEventAddr,
@@ -28,6 +34,4 @@ func Start() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
-	client.ReadLoop()
 }
