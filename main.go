@@ -1,14 +1,19 @@
 package main
 
 import (
+	"microAPro/provider/bot_action"
 	"microAPro/provider/bot_event"
+
 	"os"
 	"os/signal"
 )
 
 func main() {
+	go func() {
+		bot_event.Start()
 
-	bot_event.Start()
+	}()
+	bot_action.Start()
 
 }
 

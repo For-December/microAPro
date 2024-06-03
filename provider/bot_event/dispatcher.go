@@ -59,6 +59,7 @@ func dispatcher(msg []byte) {
 				break
 			}
 			logger.Debug(questionStr)
+			logger.Info(groupMessage.GroupId)
 			channels.AIChannel <- channels.AIAsk{
 				AskerId:  groupMessage.UserId,
 				GroupId:  groupMessage.GroupId,

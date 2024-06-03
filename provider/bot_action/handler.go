@@ -1,4 +1,4 @@
-package bot_event
+package bot_action
 
 import (
 	"fmt"
@@ -25,5 +25,5 @@ func (c *handler) OnPong(socket *gws.Conn, payload []byte) {
 }
 
 func (c *handler) OnMessage(socket *gws.Conn, message *gws.Message) {
-	fmt.Println(string(message.Bytes()))
+	//fmt.Println(string(message.Bytes()))
 }
