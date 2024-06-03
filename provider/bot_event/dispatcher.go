@@ -2,7 +2,9 @@ package bot_event
 
 import (
 	"github.com/bytedance/sonic"
+	"microAPro/channels"
 	"microAPro/constant/define"
+	"microAPro/models"
 	"microAPro/utils/logger"
 )
 
@@ -29,6 +31,26 @@ func dispatcher(msg []byte) {
 	switch event.PostType {
 	case "message":
 		logger.Info("message")
+		switch event.MessageType {
+		case "group":
+			groupMessage := GroupMessageEvent{}
+			if err := sonic.Unmarshal(msg, &groupMessage); err != nil {
+				logger.Error("groupMessage err: ", string(msg), err)
+				return
+			}
+
+			channels.MessageContextChannel <- models.MessageContext{
+				BotAccount:   "",
+				MessageType:  "group",
+				GroupId:      groupMessage.GroupId,
+				UserId:       groupMessage.UserId,
+				MessageChain: (&models.MessageChain{}).Text("1"),
+			}
+		default:
+			logger.Warning("unknown message type: ", event.MessageType)
+
+		}
+
 	case "notice":
 	case "request":
 	case "meta_event":
