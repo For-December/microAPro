@@ -1,4 +1,4 @@
-package bot
+package bot_event
 
 import (
 	"fmt"
@@ -9,8 +9,16 @@ import (
 	"os/signal"
 )
 
+var client *gws.Conn
+var err error
+
+func Stop() {
+	client.WriteClose(1000, nil)
+	println("stop event")
+}
+
 func Start() {
-	client, _, err := gws.NewClient(&handler{}, &gws.ClientOption{
+	client, _, err = gws.NewClient(&handler{}, &gws.ClientOption{
 		Addr: define.BotEventAddr,
 		RequestHeader: http.Header{
 			"Authorization": []string{"Bearer test-114514"},
