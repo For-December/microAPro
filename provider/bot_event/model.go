@@ -15,8 +15,13 @@ type GroupMessageEvent struct {
 	UserId      int         `json:"user_id"`
 	Anonymous   interface{} `json:"anonymous"`
 	Message     []struct {
-		Type string            `json:"type"`
-		Data map[string]string `json:"data"`
+		Type string `json:"type"`
+		Data struct {
+			File    string `json:"file"`
+			Url     string `json:"url"`
+			Summary string `json:"summary"`
+			SubType int    `json:"subType"`
+		} `json:"data"`
 	} `json:"message"`
 	RawMessage string `json:"raw_message"`
 	Font       int    `json:"font"`

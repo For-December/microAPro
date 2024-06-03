@@ -1,6 +1,7 @@
 package bot_event
 
 import (
+	"fmt"
 	"github.com/bytedance/sonic"
 	"microAPro/channels"
 	"microAPro/constant/define"
@@ -39,6 +40,7 @@ func dispatcher(msg []byte) {
 				return
 			}
 
+			fmt.Println(groupMessage)
 			channels.MessageContextChannel <- models.MessageContext{
 				BotAccount:   "",
 				MessageType:  "group",
