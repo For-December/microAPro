@@ -5,7 +5,6 @@ import (
 	"github.com/bytedance/sonic"
 	"microAPro/channels"
 	"microAPro/constant/define"
-	"microAPro/models"
 	"microAPro/utils/logger"
 )
 
@@ -41,13 +40,37 @@ func dispatcher(msg []byte) {
 			}
 
 			fmt.Println(groupMessage)
-			channels.MessageContextChannel <- models.MessageContext{
-				BotAccount:   "",
-				MessageType:  "group",
-				GroupId:      groupMessage.GroupId,
-				UserId:       groupMessage.UserId,
-				MessageChain: (&models.MessageChain{}).Text("1"),
+			questionStr := ""
+			isAsk := false
+			for i, s := range groupMessage.Message {
+				if i == 0 {
+					if s.Data.QQ == define.BotQQ {
+						isAsk = true
+					} else {
+						isAsk = false
+						break
+					}
+				}
+
+				questionStr += s.Data.Text
+
 			}
+			if !isAsk {
+				break
+			}
+			logger.Debug(questionStr)
+			channels.AIChannel <- channels.AIAsk{
+				AskerId:  groupMessage.UserId,
+				GroupId:  groupMessage.GroupId,
+				Question: questionStr,
+			}
+			//channels.MessageContextChannel <- models.MessageContext{
+			//	BotAccount:   "",
+			//	MessageType:  "group",
+			//	GroupId:      groupMessage.GroupId,
+			//	UserId:       groupMessage.UserId,
+			//	MessageChain: (&models.MessageChain{}).Text("1"),
+			//}
 		default:
 			logger.Warning("unknown message type: ", event.MessageType)
 

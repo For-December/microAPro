@@ -20,6 +20,8 @@ type GroupMessageEvent struct {
 			File    string `json:"file"`
 			Url     string `json:"url"`
 			Summary string `json:"summary"`
+			QQ      string `json:"qq"`
+			Text    string `json:"text"`
 			SubType int    `json:"subType"`
 		} `json:"data"`
 	} `json:"message"`
