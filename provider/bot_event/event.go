@@ -9,7 +9,6 @@ import (
 )
 
 var client *gws.Conn
-var err error
 
 func Stop() {
 	client.WriteClose(1000, nil)
@@ -17,6 +16,7 @@ func Stop() {
 }
 
 func Start() {
+	var err error
 	client, _, err = gws.NewClient(&handler{}, &gws.ClientOption{
 		Addr: define.BotEventAddr,
 		RequestHeader: http.Header{
