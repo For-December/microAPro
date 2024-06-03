@@ -9,6 +9,7 @@ import (
 //var EnvCfg envConfig
 
 var EnvCfg = struct {
+	DouBaoApiKey string `env:"DOU_BAO_API_KEY"`
 }{}
 
 func init() {

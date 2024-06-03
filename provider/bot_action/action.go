@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bytedance/sonic"
 	"github.com/lxzan/gws"
+	"microAPro/ai"
 	"microAPro/channels"
 	"microAPro/constant/define"
 	"microAPro/utils/logger"
@@ -57,7 +58,7 @@ func Start() {
 					Action: "send_group_msg",
 					Params: T{
 						GroupId:    aiAsk.GroupId,
-						Message:    "功能开发中~",
+						Message:    ai.ChatMsg(aiAsk.Question),
 						AutoEscape: false,
 					},
 					Echo: "chat_gpt_msg",

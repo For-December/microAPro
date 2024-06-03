@@ -26,6 +26,7 @@ func init() {
 		select {
 		case <-interrupt:
 			bot_event.Stop()
+			bot_action.Stop()
 			println("interrupt")
 		}
 	}()

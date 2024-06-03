@@ -16,11 +16,11 @@ func (c *handler) OnClose(socket *gws.Conn, err error) {
 }
 
 func (c *handler) OnPing(socket *gws.Conn, payload []byte) {
-	fmt.Println(string(payload))
+	fmt.Println("ping", string(payload))
 }
 
 func (c *handler) OnPong(socket *gws.Conn, payload []byte) {
-	fmt.Println(string(payload))
+	fmt.Println("pong", string(payload))
 
 }
 

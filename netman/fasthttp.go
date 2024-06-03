@@ -2,7 +2,8 @@ package netman
 
 import (
 	"github.com/valyala/fasthttp"
-	"github.com/valyala/fasthttp/fasthttpproxy"
+	"microAPro/constant/config"
+	"microAPro/utils/logger"
 	"time"
 )
 
@@ -20,7 +21,7 @@ var reqClient = &fasthttp.Client{
 	//当true时,路径按原样传输，默认会根据标准化转化
 	DisablePathNormalizing: true,
 	// 配置http代理
-	Dial: fasthttpproxy.FasthttpHTTPDialer("localhost:7891"),
+	//Dial: fasthttpproxy.FasthttpHTTPDialer("localhost:7891"),
 }
 
 func getFastReqClient() *fasthttp.Client {
@@ -39,4 +40,32 @@ func FastGet(url string) []byte {
 
 	// 读取结果
 	return body
+}
+
+func FastPost(url string, data string) []byte {
+	// 获取客户端
+	client := getFastReqClient()
+
+	// 从请求池中分别获取一个request、response实例
+	req, resp := fasthttp.AcquireRequest(), fasthttp.AcquireResponse()
+	// 回收到请求池
+	defer func() {
+		fasthttp.ReleaseRequest(req)
+		fasthttp.ReleaseResponse(resp)
+	}()
+
+	req.SetRequestURI(url)
+
+	req.Header.SetMethod(fasthttp.MethodPost)
+	req.Header.SetContentType("application/json")
+
+	req.Header.Set("Authorization", "Bearer "+config.EnvCfg.DouBaoApiKey)
+	req.SetBodyString(data)
+
+	if err := client.Do(req, resp); err != nil {
+		logger.Error("req err ", err)
+		return nil
+	}
+
+	return resp.Body()
 }
