@@ -2,9 +2,7 @@ package bot_action
 
 import (
 	"fmt"
-	"github.com/bytedance/sonic"
 	"github.com/lxzan/gws"
-	"microAPro/ai"
 	"microAPro/channels"
 	"microAPro/constant/define"
 	"microAPro/utils/logger"
@@ -13,13 +11,14 @@ import (
 )
 
 var client *gws.Conn
-var err error
+var botActionResChannel = make(chan []byte, define.ChannelBufferSize)
 
 func Stop() {
 	client.WriteClose(1000, nil)
 	println("stop action")
 }
 func Start() {
+	var err error
 	client, _, err = gws.NewClient(&handler{}, &gws.ClientOption{
 		Addr: define.BotActionAddr,
 		RequestHeader: http.Header{
@@ -30,12 +29,6 @@ func Start() {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
-	}
-
-	type BotAction struct {
-		Action string      `json:"action"`
-		Params interface{} `json:"params"`
-		Echo   string      `json:"echo"`
 	}
 
 	go func() {
@@ -52,23 +45,6 @@ func Start() {
 					logger.Error(err)
 					break
 				}
-			case aiAsk := <-channels.AIChannel: // ai 问答
-				logger.Info(1)
-				marshalString, err := sonic.MarshalString(&BotAction{
-					Action: "send_group_msg",
-					Params: T{
-						GroupId:    aiAsk.GroupId,
-						Message:    ai.ChatMsg(aiAsk.Question),
-						AutoEscape: false,
-					},
-					Echo: "chat_gpt_msg",
-				})
-				if err != nil {
-					logger.Error(err)
-					break
-				}
-				channels.BotActionChannel <- marshalString
-
 			}
 		}
 	}()

@@ -12,6 +12,7 @@ var client *gws.Conn
 
 func Start() {
 	initClient()
+	registerCustomPlugins()
 	runDispatcher()
 
 	client.ReadLoop()

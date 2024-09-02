@@ -25,5 +25,7 @@ func (c *handler) OnPong(socket *gws.Conn, payload []byte) {
 }
 
 func (c *handler) OnMessage(socket *gws.Conn, message *gws.Message) {
+
+	botActionResChannel <- message.Bytes()
 	//fmt.Println(string(message.Bytes()))
 }

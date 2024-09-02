@@ -1,14 +1,21 @@
 package bot_event
 
 import (
-	"fmt"
 	"github.com/bytedance/sonic"
-	"microAPro/channels"
 	"microAPro/constant/define"
+	"microAPro/custom_plugin"
+	"microAPro/models"
+	"microAPro/models/entity"
 	"microAPro/utils/logger"
 )
 
 var botEventChannel = make(chan []byte, define.ChannelBufferSize)
+
+var customPlugins = make([]models.PluginBase, 0)
+
+func registerCustomPlugins() {
+	customPlugins = append(customPlugins, &custom_plugin.AIChat{})
+}
 
 func runDispatcher() {
 	go func() {
@@ -20,6 +27,23 @@ func runDispatcher() {
 		}
 	}()
 }
+
+func executePlugins(ctx *models.MessageContext) {
+	for _, plugin := range customPlugins {
+
+		result := plugin.ContextFilter(ctx)
+
+		if result.IsContinue {
+			continue
+		}
+
+		if result.ErrMsg != nil {
+			logger.Warning("plugin.ContextFilter err: ", result.ErrMsg)
+			return
+		}
+	}
+}
+
 func dispatcher(msg []byte) {
 	event := BotEvent{}
 	err := sonic.Unmarshal(msg, &event)
@@ -32,6 +56,8 @@ func dispatcher(msg []byte) {
 	case "message":
 		logger.Info("message")
 		switch event.MessageType {
+
+		// 群组消息
 		case "group":
 			groupMessage := GroupMessageEvent{}
 			if err := sonic.Unmarshal(msg, &groupMessage); err != nil {
@@ -39,32 +65,81 @@ func dispatcher(msg []byte) {
 				return
 			}
 
-			fmt.Println(groupMessage)
-			questionStr := ""
-			isAsk := false
-			for i, s := range groupMessage.Message {
-				if i == 0 {
-					if s.Data.QQ == define.BotQQ {
-						isAsk = true
-					} else {
-						isAsk = false
-						break
-					}
+			// 群组消息，放入 ctx 的 channel
+			messageChain := &models.MessageChain{
+				Messages: make([]entity.CommonMessage, 0),
+				FromId:   groupMessage.UserId,
+				TargetId: groupMessage.GroupId,
+			}
+
+			for _, s := range groupMessage.Message {
+
+				switch s.Type {
+				case "text":
+					messageChain.Messages = append(messageChain.Messages,
+						entity.CommonMessage{
+							MessageType: s.Type,
+							MessageContent: map[string]interface{}{
+								"text": s.Data.Text,
+							},
+						})
+				case "image":
+					messageChain.Messages = append(messageChain.Messages,
+						entity.CommonMessage{
+							MessageType: s.Type,
+							MessageContent: map[string]interface{}{
+								"url": s.Data.Url,
+							},
+						})
+				case "at":
+					messageChain.Messages = append(messageChain.Messages,
+						entity.CommonMessage{
+							MessageType: s.Type,
+							MessageContent: map[string]interface{}{
+								"qq": s.Data.QQ,
+							},
+						})
+				default:
+					logger.Warning("no such message type: ", s.Type)
+					continue
 				}
+			}
 
-				questionStr += s.Data.Text
+			executePlugins(&models.MessageContext{
+				BotAccount:   define.BotQQ,
+				MessageType:  "group",
+				MessageId:    groupMessage.MessageId,
+				GroupId:      groupMessage.GroupId,
+				UserId:       groupMessage.UserId,
+				MessageChain: messageChain,
+			})
 
-			}
-			if !isAsk {
-				break
-			}
-			logger.Debug(questionStr)
-			logger.Info(groupMessage.GroupId)
-			channels.AIChannel <- channels.AIAsk{
-				AskerId:  groupMessage.UserId,
-				GroupId:  groupMessage.GroupId,
-				Question: questionStr,
-			}
+			//fmt.Println(groupMessage)
+			//questionStr := ""
+			//isAsk := false
+			//for i, s := range groupMessage.Message {
+			//	if i == 0 {
+			//		if s.Data.QQ == define.BotQQ {
+			//			isAsk = true
+			//		} else {
+			//			isAsk = false
+			//			break
+			//		}
+			//	}
+			//
+			//	questionStr += s.Data.Text
+
+			//}
+			//if !isAsk {
+			//	break
+			//}
+			//logger.Debug(questionStr)
+			//logger.Info(groupMessage.GroupId)
+			//channels.AIChannel <- channels.AIAsk{
+			//	AskerId:  groupMessage.UserId,
+			//	GroupId:  groupMessage.GroupId,
+			//	Question: questionStr,
+			//}
 			//channels.MessageContextChannel <- models.MessageContext{
 			//	BotAccount:   "",
 			//	MessageType:  "group",

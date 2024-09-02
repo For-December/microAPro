@@ -1,6 +1,6 @@
 package entity
 
 type CommonMessage struct {
-	MessageType    string `json:"message_type"`
-	MessageContent string `json:"message_content"`
+	MessageType    string                 `json:"message_type"`
+	MessageContent map[string]interface{} `json:"message_content"`
 }
