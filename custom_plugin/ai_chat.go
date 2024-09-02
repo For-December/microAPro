@@ -1,7 +1,6 @@
 package custom_plugin
 
 import (
-	"fmt"
 	"microAPro/ai"
 	"microAPro/constant/define"
 	"microAPro/models"
@@ -16,16 +15,13 @@ func (a *AIChat) ContextFilter(
 	ctx *models.MessageContext,
 ) models.ContextFilterResult {
 
-	logger.Info("AIChat ContextFilter")
 	// 下一级处理
 	if ctx.MessageType != "group" {
-		return models.ContextFilterResult{
-			IsContinue: true,
-			ErrMsg:     nil,
-		}
+		return models.ContextFilterResult{}
 	}
 
-	fmt.Println(ctx.MessageChain.ToString())
+	logger.Info("AIChat ContextFilter")
+
 	questionStr := ""
 	isAsk := false
 	for _, s := range ctx.MessageChain.Messages {
@@ -40,10 +36,7 @@ func (a *AIChat) ContextFilter(
 
 	}
 	if !isAsk {
-		return models.ContextFilterResult{
-			IsContinue: true,
-			ErrMsg:     nil,
-		}
+		return models.ContextFilterResult{}
 	}
 
 	logger.InfoF("[%d] -> %s", ctx.GroupId, questionStr)
@@ -57,7 +50,7 @@ func (a *AIChat) ContextFilter(
 		})
 
 	return models.ContextFilterResult{
-		IsContinue: false,
-		ErrMsg:     nil,
+		BreakFilter: false,
+		ErrMsg:      nil,
 	}
 }

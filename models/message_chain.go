@@ -26,7 +26,7 @@ func (receiver *MessageChain) ToString() string {
 		case "at":
 			resStr += "@(" + message.MessageContent["qq"].(string) + ")"
 		}
-		resStr += "\n"
+		//resStr += "\n"
 	}
 	return resStr
 }

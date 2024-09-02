@@ -15,6 +15,7 @@ var customPlugins = make([]models.PluginBase, 0)
 
 func registerCustomPlugins() {
 	customPlugins = append(customPlugins, &custom_plugin.AIChat{})
+	customPlugins = append(customPlugins, &custom_plugin.GroupLog{})
 }
 
 func runDispatcher() {
@@ -33,12 +34,11 @@ func executePlugins(ctx *models.MessageContext) {
 
 		result := plugin.ContextFilter(ctx)
 
-		if result.IsContinue {
-			continue
-		}
-
 		if result.ErrMsg != nil {
 			logger.Warning("plugin.ContextFilter err: ", result.ErrMsg)
+		}
+
+		if result.BreakFilter {
 			return
 		}
 	}
