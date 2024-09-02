@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"os"
 	"regexp"
@@ -10,6 +11,19 @@ import (
 )
 
 type MyWriter struct {
+}
+
+func writeToFile(b []byte) {
+	file, err := os.OpenFile("logs/text.log", os.O_CREATE|os.O_RDWR|os.O_APPEND, os.ModeDir|os.ModePerm)
+	if err != nil {
+		fmt.Println("writeToFileErr: ", err)
+		return
+	}
+	_, err = file.Write(b)
+	if err != nil {
+		fmt.Println("writeToFileErr: ", err)
+		return
+	}
 }
 
 // Write 实现 io.Writer 接口的 Write 方法
@@ -22,6 +36,7 @@ func (cw *MyWriter) Write(p []byte) (n int, err error) {
 		return r == '[' || r == ']'
 	})
 	outStr := string(p)
+	writeToFile(p)
 	beforeOut(levelStr, &outStr)
 
 	// 调用底层输出
