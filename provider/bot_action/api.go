@@ -53,6 +53,10 @@ func (receiver *botActionAPI) SendGroupMessage(chain models.MessageChain, callba
 					// 执行回调，结束携程
 					logger.Info(event.Data)
 					callback(event.Data.MessageId)
+
+					// 将messageId保存
+					channels.BotMessageIdStack.Push(event.Data.MessageId)
+
 					return
 				}
 
@@ -63,4 +67,21 @@ func (receiver *botActionAPI) SendGroupMessage(chain models.MessageChain, callba
 			}
 		}
 	}()
+}
+
+func (receiver *botActionAPI) RecallMessage(messageId int) {
+
+	echoMsg := fmt.Sprintf("recall_%d", messageId)
+	marshalString, err := sonic.MarshalString(&BotAction{
+		Action: "delete_msg",
+		Params: map[string]int{
+			"message_id": messageId,
+		},
+		Echo: echoMsg,
+	})
+	if err != nil {
+		logger.Error(err)
+		return
+	}
+	channels.BotActionChannel <- marshalString
 }

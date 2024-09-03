@@ -15,8 +15,9 @@ var customPlugins = make([]models.PluginBase, 0)
 
 // 注册插件
 func registerCustomPlugins() {
+	customPlugins = append(customPlugins, &custom_plugin.RecallSelf{})
 	customPlugins = append(customPlugins, &custom_plugin.AIChat{})
-	customPlugins = append(customPlugins, &custom_plugin.GroupLog{})
+	customPlugins = append(customPlugins, &custom_plugin.GroupLogs{})
 }
 
 func runDispatcher() {

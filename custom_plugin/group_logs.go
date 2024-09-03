@@ -10,10 +10,10 @@ import (
 	"time"
 )
 
-type GroupLog struct {
+type GroupLogs struct {
 }
 
-func (g *GroupLog) ContextFilter(
+func (g *GroupLogs) ContextFilter(
 	ctx *models.MessageContext,
 ) models.ContextFilterResult {
 	logger.DebugF("[group:%d]-[user:%d] => %s", ctx.GroupId, ctx.UserId, ctx.MessageChain.ToString())
