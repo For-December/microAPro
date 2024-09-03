@@ -1,6 +1,7 @@
 package custom_plugin
 
 import (
+	"gorm.io/gorm/utils"
 	"microAPro/constant/define"
 	"microAPro/custom_plugin/ai"
 	"microAPro/models"
@@ -20,8 +21,6 @@ func (a *AIChat) ContextFilter(
 		return models.ContextFilterResult{}
 	}
 
-	logger.Info("AIChat ContextFilter")
-
 	questionStr := ""
 	isAsk := false
 	for _, s := range ctx.MessageChain.Messages {
@@ -38,13 +37,14 @@ func (a *AIChat) ContextFilter(
 	if !isAsk {
 		return models.ContextFilterResult{}
 	}
+	logger.Info("AIChat ContextFilter")
 
 	logger.InfoF("[%d] -> %s", ctx.GroupId, questionStr)
 
 	bot_action.BotActionAPIInstance.SendGroupMessage(
 		*(&models.MessageChain{
 			GroupId: ctx.GroupId,
-		}).Text(ai.ChatMsg(questionStr)),
+		}).At(utils.ToString(ctx.UserId)).Text(" ").Text(ai.ChatMsgWithHistory(questionStr)),
 		func(messageId int) {
 			println("id---------------> ", messageId)
 		})

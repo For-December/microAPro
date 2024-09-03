@@ -1,14 +1,23 @@
 package main
 
 import (
+	"microAPro/dbmodels"
 	"microAPro/provider/bot_action"
 	"microAPro/provider/bot_event"
+	"microAPro/storage/database"
+	"microAPro/utils/logger"
 
 	"os"
 	"os/signal"
 )
 
 func main() {
+
+	if err := database.Client.AutoMigrate(&dbmodels.GroupAskAnswer{}, &dbmodels.GroupLog{}); err != nil {
+		logger.Error(err)
+		return
+	}
+	//return
 	go func() {
 		bot_event.Start()
 
