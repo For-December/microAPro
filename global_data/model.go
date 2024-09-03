@@ -1,4 +1,4 @@
-package channels
+package global_data
 
 type AIAsk struct {
 	AskerId  int    `json:"askerId"`

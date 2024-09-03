@@ -10,7 +10,10 @@ import (
 	"time"
 )
 
-type GroupLogs struct {
+type GroupLogs struct{}
+
+func (g *GroupLogs) GetPluginInfo() string {
+	return "GroupLogs -> 记录和群聊相关的运行日志"
 }
 
 func (g *GroupLogs) ContextFilter(

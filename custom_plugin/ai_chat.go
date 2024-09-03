@@ -2,15 +2,18 @@ package custom_plugin
 
 import (
 	"gorm.io/gorm/utils"
-	"microAPro/channels"
 	"microAPro/constant/define"
 	"microAPro/custom_plugin/ai"
+	"microAPro/global_data"
 	"microAPro/models"
 	"microAPro/provider/bot_action"
 	"microAPro/utils/logger"
 )
 
-type AIChat struct {
+type AIChat struct{}
+
+func (a *AIChat) GetPluginInfo() string {
+	return "AIChat -> 内置ai"
 }
 
 func (a *AIChat) ContextFilter(
@@ -48,7 +51,7 @@ func (a *AIChat) ContextFilter(
 		}).At(utils.ToString(ctx.UserId)).Text(" ").Text(ai.ChatMsgWithHistory(questionStr)),
 		func(messageId int) {
 			// 将messageId保存
-			channels.BotMessageIdStack.Push(messageId)
+			global_data.BotMessageIdStack.Push(messageId)
 			println("id---------------> ", messageId)
 		})
 

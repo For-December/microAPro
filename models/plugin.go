@@ -4,6 +4,9 @@ type ContextFilterResult struct {
 	BreakFilter bool
 	ErrMsg      error
 }
-type PluginBase interface {
+
+type PluginBaseInterface interface {
 	ContextFilter(ctx *MessageContext) ContextFilterResult
+
+	GetPluginInfo() string
 }

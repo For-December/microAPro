@@ -3,8 +3,8 @@ package bot_action
 import (
 	"fmt"
 	"github.com/lxzan/gws"
-	"microAPro/channels"
 	"microAPro/constant/define"
+	"microAPro/global_data"
 	"microAPro/utils/logger"
 	"net/http"
 	"os"
@@ -40,7 +40,7 @@ func Start() {
 
 		for {
 			select {
-			case botAction := <-channels.BotActionChannel: // bot 行为
+			case botAction := <-global_data.BotActionChannel: // bot 行为
 				if err := client.WriteString(botAction); err != nil {
 					logger.Error(err)
 					break

@@ -4,6 +4,7 @@ import (
 	"github.com/bytedance/sonic"
 	"microAPro/constant/define"
 	"microAPro/custom_plugin"
+	"microAPro/global_data"
 	"microAPro/models"
 	"microAPro/models/entity"
 	"microAPro/utils/logger"
@@ -11,13 +12,12 @@ import (
 
 var botEventChannel = make(chan []byte, define.ChannelBufferSize)
 
-var customPlugins = make([]models.PluginBase, 0)
-
 // 注册插件
 func registerCustomPlugins() {
-	customPlugins = append(customPlugins, &custom_plugin.RecallSelf{})
-	customPlugins = append(customPlugins, &custom_plugin.AIChat{})
-	customPlugins = append(customPlugins, &custom_plugin.GroupLogs{})
+	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.BotInfos{})
+	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.RecallSelf{})
+	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.AIChat{})
+	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.GroupLogs{})
 }
 
 func runDispatcher() {
@@ -32,7 +32,7 @@ func runDispatcher() {
 }
 
 func executePlugins(ctx *models.MessageContext) {
-	for _, plugin := range customPlugins {
+	for _, plugin := range global_data.CustomPlugins {
 
 		result := plugin.ContextFilter(ctx)
 

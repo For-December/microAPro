@@ -3,7 +3,7 @@ package bot_action
 import (
 	"fmt"
 	"github.com/bytedance/sonic"
-	"microAPro/channels"
+	"microAPro/global_data"
 	"microAPro/models"
 	"microAPro/utils/logger"
 	"time"
@@ -36,7 +36,7 @@ func (receiver *botActionAPI) SendGroupMessage(chain models.MessageChain, callba
 		logger.Error(err)
 		return
 	}
-	channels.BotActionChannel <- marshalString
+	global_data.BotActionChannel <- marshalString
 	go func() {
 		for {
 			select {
@@ -80,5 +80,5 @@ func (receiver *botActionAPI) RecallMessage(messageId int) {
 		logger.Error(err)
 		return
 	}
-	channels.BotActionChannel <- marshalString
+	global_data.BotActionChannel <- marshalString
 }

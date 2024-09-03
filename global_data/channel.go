@@ -1,4 +1,4 @@
-package channels
+package global_data
 
 import (
 	"microAPro/constant/define"
@@ -7,10 +7,8 @@ import (
 	"time"
 )
 
-var ReceivedMessageContextChannel = make(chan models.MessageContext, 100)
-
 var BotActionChannel = make(chan string, define.ChannelBufferSize)
 
-var AIChannel = make(chan AIAsk, 100)
-
 var BotMessageIdStack = containers.NewCustomStack[int](20, 2*time.Minute)
+
+var CustomPlugins = make([]models.PluginBaseInterface, 0)

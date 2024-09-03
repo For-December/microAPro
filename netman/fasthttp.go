@@ -9,11 +9,11 @@ import (
 
 var reqClient = &fasthttp.Client{
 	// 读超时时间,不设置read超时,可能会造成连接复用失效
-	ReadTimeout: time.Second * 5,
+	ReadTimeout: time.Second * 15,
 	// 写超时时间
-	WriteTimeout: time.Second * 5,
+	WriteTimeout: time.Second * 15,
 	// 5秒后，关闭空闲的活动连接
-	MaxIdleConnDuration: time.Second * 5,
+	MaxIdleConnDuration: time.Second * 15,
 	// 当true时,从请求中去掉User-Agent标头
 	NoDefaultUserAgentHeader: true,
 	// 当true时，header中的key按照原样传输，默认会根据标准化转化
