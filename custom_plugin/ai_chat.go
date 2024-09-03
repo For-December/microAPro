@@ -44,7 +44,7 @@ func (a *AIChat) ContextFilter(
 	bot_action.BotActionAPIInstance.SendGroupMessage(
 		*(&models.MessageChain{
 			GroupId: ctx.GroupId,
-		}).Text(ai.ChatMsgWithHistory(questionStr)),
+		}).Text(ai.ChatMsg(questionStr)),
 		func(messageId int) {
 			println("id---------------> ", messageId)
 		})
