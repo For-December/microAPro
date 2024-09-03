@@ -13,6 +13,7 @@ var botEventChannel = make(chan []byte, define.ChannelBufferSize)
 
 var customPlugins = make([]models.PluginBase, 0)
 
+// 注册插件
 func registerCustomPlugins() {
 	customPlugins = append(customPlugins, &custom_plugin.AIChat{})
 	customPlugins = append(customPlugins, &custom_plugin.GroupLog{})
@@ -64,8 +65,9 @@ func dispatcher(msg []byte) {
 				logger.Error("groupMessage err: ", string(msg), err)
 				return
 			}
+			logger.Info(string(msg))
 
-			// 群组消息，放入 ctx 的 channel
+			// 消息链
 			messageChain := &models.MessageChain{
 				Messages: make([]entity.CommonMessage, 0),
 				FromId:   groupMessage.UserId,
@@ -114,39 +116,6 @@ func dispatcher(msg []byte) {
 				MessageChain: messageChain,
 			})
 
-			//fmt.Println(groupMessage)
-			//questionStr := ""
-			//isAsk := false
-			//for i, s := range groupMessage.Message {
-			//	if i == 0 {
-			//		if s.Data.QQ == define.BotQQ {
-			//			isAsk = true
-			//		} else {
-			//			isAsk = false
-			//			break
-			//		}
-			//	}
-			//
-			//	questionStr += s.Data.Text
-
-			//}
-			//if !isAsk {
-			//	break
-			//}
-			//logger.Debug(questionStr)
-			//logger.Info(groupMessage.GroupId)
-			//channels.AIChannel <- channels.AIAsk{
-			//	AskerId:  groupMessage.UserId,
-			//	GroupId:  groupMessage.GroupId,
-			//	Question: questionStr,
-			//}
-			//channels.MessageContextChannel <- models.MessageContext{
-			//	BotAccount:   "",
-			//	MessageType:  "group",
-			//	GroupId:      groupMessage.GroupId,
-			//	UserId:       groupMessage.UserId,
-			//	MessageChain: (&models.MessageChain{}).Text("1"),
-			//}
 		default:
 			logger.Warning("unknown message type: ", event.MessageType)
 

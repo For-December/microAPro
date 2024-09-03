@@ -8,11 +8,3 @@ type MessageContext struct {
 	UserId       int           `json:"user_id"`
 	MessageChain *MessageChain `json:"message_chain"`
 }
-
-func (receiver *MessageContext) SendGroupMessage() {
-
-}
-
-func (receiver *MessageContext) SendPrivateMessage() {
-
-}

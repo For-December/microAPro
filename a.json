@@ -1,0 +1,34 @@
+[
+  {
+    "type": "reply",
+    "data": {
+      "id": "0"
+    }
+  },
+  {
+    "type": "at",
+    "data": {
+      "qq": "449324207",
+      "name": "@\u304C\u304F\u305B\u3044"
+    }
+  },
+  {
+    "type": "text",
+    "data": {
+      "text": " "
+    }
+  },
+  {
+    "type": "at",
+    "data": {
+      "qq": "449324207",
+      "name": "@\u304C\u304F\u305B\u3044"
+    }
+  },
+  {
+    "type": "text",
+    "data": {
+      "text": " \u6D4B\u8BD5"
+    }
+  }
+]

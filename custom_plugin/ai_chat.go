@@ -1,8 +1,8 @@
 package custom_plugin
 
 import (
-	"microAPro/ai"
 	"microAPro/constant/define"
+	"microAPro/custom_plugin/ai"
 	"microAPro/models"
 	"microAPro/provider/bot_action"
 	"microAPro/utils/logger"
@@ -44,7 +44,7 @@ func (a *AIChat) ContextFilter(
 	bot_action.BotActionAPIInstance.SendGroupMessage(
 		*(&models.MessageChain{
 			GroupId: ctx.GroupId,
-		}).Text(ai.ChatMsg(questionStr)),
+		}).Text(ai.ChatMsgWithHistory(questionStr)),
 		func(messageId int) {
 			println("id---------------> ", messageId)
 		})
