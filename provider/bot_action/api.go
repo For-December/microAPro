@@ -54,9 +54,6 @@ func (receiver *botActionAPI) SendGroupMessage(chain models.MessageChain, callba
 					logger.Info(event.Data)
 					callback(event.Data.MessageId)
 
-					// 将messageId保存
-					channels.BotMessageIdStack.Push(event.Data.MessageId)
-
 					return
 				}
 

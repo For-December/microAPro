@@ -37,9 +37,18 @@ func (r *RecallSelf) ContextFilter(
 
 	if ok {
 		bot_action.BotActionAPIInstance.RecallMessage(messageId)
-		return models.ContextFilterResult{
-			BreakFilter: true,
-		}
+
+	} else {
+
+		bot_action.BotActionAPIInstance.SendGroupMessage(
+			*((&models.MessageChain{
+				GroupId: ctx.GroupId,
+			}).Text("暂时没有可以撤回的消息!")),
+			func(messageId int) {
+			})
 	}
-	return models.ContextFilterResult{}
+
+	return models.ContextFilterResult{
+		BreakFilter: true,
+	}
 }

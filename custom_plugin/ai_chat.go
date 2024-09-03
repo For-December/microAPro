@@ -2,6 +2,7 @@ package custom_plugin
 
 import (
 	"gorm.io/gorm/utils"
+	"microAPro/channels"
 	"microAPro/constant/define"
 	"microAPro/custom_plugin/ai"
 	"microAPro/models"
@@ -46,6 +47,8 @@ func (a *AIChat) ContextFilter(
 			GroupId: ctx.GroupId,
 		}).At(utils.ToString(ctx.UserId)).Text(" ").Text(ai.ChatMsgWithHistory(questionStr)),
 		func(messageId int) {
+			// 将messageId保存
+			channels.BotMessageIdStack.Push(messageId)
 			println("id---------------> ", messageId)
 		})
 
