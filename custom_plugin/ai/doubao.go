@@ -50,7 +50,16 @@ var historyArray = []MessageMeta{
 	},
 }
 
-func ChatMsgWithHistory(ask string) string {
+func ChatMsgWithHistory(ask, prompt string) string {
+
+	if prompt != "" {
+		historyArray[0] = MessageMeta{
+			Role:    "system",
+			Content: prompt,
+		}
+	}
+
+	historyArray[0].Content = ProcessPromptWithData(historyArray[0].Content)
 
 	historyArray = append(historyArray, MessageMeta{
 		Role:    "user",

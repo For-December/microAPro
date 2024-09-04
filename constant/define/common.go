@@ -14,3 +14,5 @@ const BotQQ = "3090807650"
 const DouBaoEndPoint = "https://ark.cn-beijing.volces.com/api/v3"
 
 const DouBaoChat = "/chat/completions"
+
+const VolImageEndPoint = "https://visual.volcengineapi.com"
