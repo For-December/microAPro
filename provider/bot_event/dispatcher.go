@@ -6,7 +6,6 @@ import (
 	"microAPro/custom_plugin"
 	"microAPro/global_data"
 	"microAPro/models"
-	"microAPro/models/entity"
 	"microAPro/utils/logger"
 )
 
@@ -70,7 +69,6 @@ func dispatcher(msg []byte) {
 
 			// 消息链
 			messageChain := &models.MessageChain{
-				Messages: make([]entity.CommonMessage, 0),
 				FromId:   groupMessage.UserId,
 				TargetId: groupMessage.GroupId,
 			}
@@ -79,29 +77,18 @@ func dispatcher(msg []byte) {
 
 				switch s.Type {
 				case "text":
-					messageChain.Messages = append(messageChain.Messages,
-						entity.CommonMessage{
-							MessageType: s.Type,
-							MessageContent: map[string]interface{}{
-								"text": s.Data.Text,
-							},
-						})
+					messageChain.Text(s.Data["text"].(string))
 				case "image":
-					messageChain.Messages = append(messageChain.Messages,
-						entity.CommonMessage{
-							MessageType: s.Type,
-							MessageContent: map[string]interface{}{
-								"url": s.Data.Url,
-							},
-						})
+					messageChain.Image(s.Data["file"].(string))
+				case "record":
+					messageChain.Record(s.Data["file"].(string))
 				case "at":
-					messageChain.Messages = append(messageChain.Messages,
-						entity.CommonMessage{
-							MessageType: s.Type,
-							MessageContent: map[string]interface{}{
-								"qq": s.Data.QQ,
-							},
-						})
+					messageChain.At(s.Data["qq"].(string))
+				case "reply":
+					messageChain.Reply(s.Data["id"].(string))
+				case "face":
+					messageChain.Face(s.Data["id"].(string))
+
 				default:
 					logger.Warning("no such message type: ", s.Type)
 					continue

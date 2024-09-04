@@ -15,15 +15,14 @@ type GroupMessageEvent struct {
 	UserId      int         `json:"user_id"`
 	Anonymous   interface{} `json:"anonymous"`
 	Message     []struct {
-		Type string `json:"type"`
-		Data struct {
-			File    string `json:"file"`
-			Url     string `json:"url"`
-			Summary string `json:"summary"`
-			QQ      string `json:"qq"`
-			Text    string `json:"text"`
-			SubType int    `json:"subType"`
-		} `json:"data"`
+		Type string                 `json:"type"`
+		Data map[string]interface{} `json:"data"`
+		//File    string `json:"file"`
+		//Url     string `json:"url"`
+		//Summary string `json:"summary"`
+		//QQ      string `json:"qq"`
+		//Text    string `json:"text"`
+		//SubType int    `json:"subType"`
 	} `json:"message"`
 	RawMessage string `json:"raw_message"`
 	Font       int    `json:"font"`

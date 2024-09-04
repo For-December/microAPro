@@ -80,56 +80,38 @@ func (receiver *MessageChain) ToJsonTypeMessage() []JsonTypeMessage {
 	return message
 }
 
-func (receiver *MessageChain) Text(content string) *MessageChain {
+func (receiver *MessageChain) appendByType(messageType, messageKey, messageValue string) *MessageChain {
 	receiver.Messages = append(receiver.Messages, entity.CommonMessage{
-		MessageType:    "text",
-		MessageContent: map[string]interface{}{"text": content},
+		MessageType:    messageType,
+		MessageContent: map[string]interface{}{messageKey: messageValue},
 	})
 	return receiver
+}
+
+func (receiver *MessageChain) Text(content string) *MessageChain {
+	return receiver.appendByType("text", "text", content)
 }
 
 func (receiver *MessageChain) Image(file string) *MessageChain {
-	receiver.Messages = append(receiver.Messages, entity.CommonMessage{
-		MessageType:    "image",
-		MessageContent: map[string]interface{}{"file": file},
-	})
-	return receiver
-
+	return receiver.appendByType("image", "file", file)
 }
 
 func (receiver *MessageChain) Record(file string) *MessageChain {
-	receiver.Messages = append(receiver.Messages, entity.CommonMessage{
-		MessageType:    "record",
-		MessageContent: map[string]interface{}{"file": file},
-	})
-	return receiver
-
+	return receiver.appendByType("record", "file", file)
 }
 
 func (receiver *MessageChain) At(qq string) *MessageChain {
-	receiver.Messages = append(receiver.Messages, entity.CommonMessage{
-		MessageType:    "at",
-		MessageContent: map[string]interface{}{"qq": qq},
-	})
-	return receiver
+	return receiver.appendByType("at", "qq", qq)
 }
 
 // Reply 通过消息id回复
 func (receiver *MessageChain) Reply(id string) *MessageChain {
-	receiver.Messages = append(receiver.Messages, entity.CommonMessage{
-		MessageType:    "reply",
-		MessageContent: map[string]interface{}{"id": id},
-	})
-	return receiver
+	return receiver.appendByType("reply", "id", id)
 }
 
 func (receiver *MessageChain) Face(id string) *MessageChain {
 
 	// 关于id和表情的对应
 	// https://github.com/kyubotics/coolq-http-api/wiki/%E8%A1%A8%E6%83%85-CQ-%E7%A0%81-ID-%E8%A1%A8
-	receiver.Messages = append(receiver.Messages, entity.CommonMessage{
-		MessageType:    "face",
-		MessageContent: map[string]interface{}{"id": id},
-	})
-	return receiver
+	return receiver.appendByType("face", "id", id)
 }
