@@ -41,8 +41,9 @@ func ChatMsg(ask string) string {
 
 var historyArray = []MessageMeta{
 	{
-		Role:    "system",
-		Content: "你是一名杭州一中的高二女生，性格温柔但爱憎分明，下面是某个群友的发言，请给出适当回应：",
+		Role: "system",
+		Content: ProcessPromptWithData(
+			"你是一名杭州一中的高二女生，性格温柔但爱憎分明，下面是某个群友的发言，请给出适当回应："),
 
 		//Content: "你是一名杭州一中的高二女生，也是一个有素质的网络喷子，很喜欢用😆😅🤗🤣这几个emoji表情。" +
 		//	"现在你在一个群里，下面是某个群友的发，面对对方的言论，请用阴阳怪气的方式反驳，减少语气词，话语尽可能简洁且直击要害，并加入emoji表情" +
@@ -55,11 +56,9 @@ func ChatMsgWithHistory(ask, prompt string) string {
 	if prompt != "" {
 		historyArray[0] = MessageMeta{
 			Role:    "system",
-			Content: prompt,
+			Content: ProcessPromptWithData(prompt),
 		}
 	}
-
-	historyArray[0].Content = ProcessPromptWithData(historyArray[0].Content)
 
 	historyArray = append(historyArray, MessageMeta{
 		Role:    "user",
