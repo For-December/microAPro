@@ -43,7 +43,7 @@ func (a *AIChat) ContextFilter(
 	}
 	logger.Info("AIChat ContextFilter")
 
-	logger.InfoF("[%d] -> %s", ctx.GroupId, questionStr)
+	//logger.InfoF("[%d] -> %s", ctx.GroupId, questionStr)
 
 	bot_action.BotActionAPIInstance.SendGroupMessage(
 		*(&models.MessageChain{
