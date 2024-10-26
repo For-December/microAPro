@@ -1,6 +1,9 @@
 package models
 
-import "microAPro/models/entity"
+import (
+	"microAPro/models/entity"
+	"strings"
+)
 
 type MessageChain struct {
 	Messages []entity.CommonMessage `json:"messages"`
@@ -13,6 +16,32 @@ type MessageChain struct {
 type JsonTypeMessage struct {
 	Type string                 `json:"type"`
 	Data map[string]interface{} `json:"data"`
+}
+
+func (receiver *MessageChain) ToPath() string {
+	resStr := ""
+	for _, message := range receiver.Messages {
+		switch message.MessageType {
+		case "text":
+			// 去除所有text中的空格
+			resStr += " " + strings.ReplaceAll(
+				message.MessageContent["text"].(string),
+				" ",
+				"")
+		case "image":
+			resStr += " <-image->[" + message.MessageContent["file"].(string) + "]"
+		case "record":
+			resStr += " <-record->[" + message.MessageContent["file"].(string) + "]"
+		case "at":
+			resStr += " @(" + message.MessageContent["qq"].(string) + ")"
+		case "reply":
+			resStr += " reply(" + message.MessageContent["id"].(string) + ")"
+		case "face":
+			resStr += " face(" + message.MessageContent["id"].(string) + ")"
+		}
+		//resStr += "\n"
+	}
+	return resStr
 }
 
 func (receiver *MessageChain) ToString() string {

@@ -7,8 +7,8 @@ import (
 
 // RouteTrieNode 路由基数树节点
 type RouteTrieNode struct {
-	children  map[string]*RouteTrieNode
-	isParam   bool
+	children map[string]*RouteTrieNode
+	//isParam   bool
 	paramName string
 	handler   models.PluginHandler
 }
@@ -33,17 +33,17 @@ func NewRouteTrie(callbackFunc models.CallbackFunc) *RouteTrie {
 
 // Insert 在路由基数树中插入路由和对应的处理函数
 func (t *RouteTrie) Insert(path string, handler models.PluginHandler) {
-	parts := strings.Split(path, "/")
+	parts := strings.Split(path, " ")
 	node := t.root
 	for _, part := range parts {
 		if part == "" {
 			continue
 		}
-		if part[0] == ':' { // 参数节点，用空字符串表示该特殊节点
+		if part[0] == '$' { // 参数节点，用空字符串表示该特殊节点
 			if _, ok := node.children[""]; !ok {
 				node.children[""] = &RouteTrieNode{
-					children:  make(map[string]*RouteTrieNode),
-					isParam:   true,
+					children: make(map[string]*RouteTrieNode),
+					//isParam:   true,
 					paramName: part[1:],
 				}
 			}
@@ -75,7 +75,7 @@ func (t *RouteTrie) Insert(path string, handler models.PluginHandler) {
 
 // Search 在路由基数树中查找路由对应的处理函数
 func (t *RouteTrie) Search(path string) models.PluginHandler {
-	parts := strings.Split(path, "/")
+	parts := strings.Split(path, " ")
 	node := t.root
 	params := make(map[string]string)
 
