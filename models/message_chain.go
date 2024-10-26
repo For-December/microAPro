@@ -33,9 +33,9 @@ func (receiver *MessageChain) ToPath() string {
 		case "record":
 			resStr += " <-record->[" + message.MessageContent["file"].(string) + "]"
 		case "at":
-			resStr += " @(" + message.MessageContent["qq"].(string) + ")"
+			resStr += " @ " + message.MessageContent["qq"].(string) + ""
 		case "reply":
-			resStr += " reply(" + message.MessageContent["id"].(string) + ")"
+			resStr += " & " + message.MessageContent["id"].(string) + ""
 		case "face":
 			resStr += " face(" + message.MessageContent["id"].(string) + ")"
 		}

@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestTree(t *testing.T) {
+func TestTreeBase(t *testing.T) {
 	trie := NewRouteTrie(models.CallbackFunc{
 		AfterEach: func(ctx *models.MessageContext) models.ContextResult {
 			println("After each handler")
@@ -65,4 +65,50 @@ func TestTree(t *testing.T) {
 	if handler != nil {
 		handler(&models.MessageContext{})
 	}
+}
+
+func TestTreeSuper(t *testing.T) {
+	trie := NewRouteTrie(models.CallbackFunc{
+		AfterEach: func(ctx *models.MessageContext) models.ContextResult {
+			println("After each handler")
+			return models.ContextResult{}
+		},
+		OnNotFound: func(ctx *models.MessageContext) models.ContextResult {
+			println("Not found handler")
+			return models.ContextResult{}
+		},
+	})
+
+	trie.Insert("@ $qq test", func(ctx *models.MessageContext) models.ContextResult {
+		for k, v := range ctx.Params {
+			fmt.Printf("参数：[%v]->[%v]\n", k, v)
+		}
+		return models.ContextResult{}
+	})
+
+	trie.Insert("& 123 test $testParam", func(ctx *models.MessageContext) models.ContextResult {
+		for k, v := range ctx.Params {
+			fmt.Printf("参数：[%v]->[%v]\n", k, v)
+		}
+		return models.ContextResult{}
+	})
+
+	ctx1 := &models.MessageContext{
+		MessageChain: (&models.MessageChain{}).At("123").Text("test"),
+	}
+
+	fn := trie.Search(ctx1.MessageChain.ToPath())
+	if fn != nil {
+		fn(ctx1)
+	}
+
+	ctx2 := &models.MessageContext{
+		MessageChain: (&models.MessageChain{}).At("123").Text("test").Text("你好"),
+	}
+
+	fn = trie.Search(ctx2.MessageChain.ToPath())
+	if fn != nil {
+		fn(ctx2)
+	}
+
 }

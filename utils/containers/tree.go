@@ -93,8 +93,8 @@ func (t *RouteTrie) Search(path string) models.PluginHandler {
 			params[node.children[""].paramName] = part
 			node = node.children[""]
 		} else {
-			// 不是参数节点，也找不到这部分对应的节点，返回nil
-			return nil
+			// 不是参数节点，也找不到这部分对应的节点，返回404
+			return t.callbackFunc.OnNotFound
 		}
 	}
 
