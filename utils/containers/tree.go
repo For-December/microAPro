@@ -23,6 +23,20 @@ type RouteTrie struct {
 
 // NewRouteTrie 创建一个新的路由基数树
 func NewRouteTrie(callbackFunc models.CallbackFunc) *RouteTrie {
+
+	// 如果没有设置回调函数，使用默认的回调函数
+	if callbackFunc.OnNotFound == nil {
+		callbackFunc.OnNotFound = func(ctx *models.MessageContext) models.ContextResult {
+			return models.ContextResult{}
+		}
+	}
+
+	if callbackFunc.AfterEach == nil {
+		callbackFunc.AfterEach = func(ctx *models.MessageContext) models.ContextResult {
+			return models.ContextResult{}
+		}
+	}
+
 	return &RouteTrie{
 		root: &RouteTrieNode{
 			children: make(map[string]*RouteTrieNode),
@@ -66,11 +80,6 @@ func (t *RouteTrie) Insert(path string, handler models.PluginHandler) {
 		if handler(ctx).IsContinue {
 			return models.ContextResult{
 				IsContinue: true,
-			}
-		}
-		if t.callbackFunc.AfterEach == nil {
-			return models.ContextResult{
-				IsContinue: false,
 			}
 		}
 		return t.callbackFunc.AfterEach(ctx)
