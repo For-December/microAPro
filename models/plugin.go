@@ -21,5 +21,5 @@ type PluginHandler func(ctx *MessageContext) ContextResult
 type PluginInterface interface {
 	GetPath() string // ban [user] [duration]
 	GetPluginInfo() string
-	ContextFilter(ctx *MessageContext) ContextResult
+	PluginHandler() func(ctx *MessageContext) ContextResult
 }

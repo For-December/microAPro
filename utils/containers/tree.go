@@ -90,5 +90,9 @@ func (t *RouteTrie) Search(path string) models.PluginHandler {
 			return nil
 		}
 	}
-	return node.handler
+	return func(ctx *models.MessageContext) models.ContextResult {
+		// 代理函数
+		ctx.Params = params
+		return node.handler(ctx)
+	}
 }
