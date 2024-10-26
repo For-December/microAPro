@@ -13,7 +13,7 @@ type BotInfos struct{}
 var _ models.PluginInterface = &BotInfos{}
 
 func (b *BotInfos) GetPluginInfo() string {
-	return "BotInfos -> bot相关信息展示"
+	return "BotInfos -> bot相关信息展示\n${func | fn | f | 功能清单 | functions | 功能}"
 }
 func (b *BotInfos) GetPaths() []string {
 

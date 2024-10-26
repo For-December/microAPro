@@ -21,6 +21,7 @@ func registerCustomPlugins() {
 	//global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.RecallSelf{})
 	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.AIChat{})
 	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.GroupLogs{})
+	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.Echo{})
 
 	// 树形路由匹配注册
 	trie = containers.NewRouteTrie(models.CallbackFunc{})
