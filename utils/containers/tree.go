@@ -181,14 +181,14 @@ func (t *RouteTrie) SearchAndExec(ctx *models.MessageContext) {
 	for _, handler := range node.handlers {
 		// 终止
 		if !handler(ctx).IsContinue {
-			return
+			break
 		}
 	}
 
 	// 执行所有AfterEach回调函数
 	for _, handler := range t.callbackFunc.AfterEach {
 		if !handler(ctx).IsContinue {
-			return
+			break
 		}
 	}
 
