@@ -10,7 +10,7 @@ type RouteTrieNode struct {
 	children map[string]*RouteTrieNode
 	//isParam   bool
 	paramName string
-	handler   models.PluginHandler
+	handlers  []models.PluginHandler
 }
 
 // RouteTrie 路由基数树
@@ -86,18 +86,7 @@ func (t *RouteTrie) Insert(path string, handler models.PluginHandler) {
 
 	}
 
-	// after each 方法在这里代理
-	node.handler = func(ctx *models.MessageContext) models.ContextResult {
-		handler(ctx)
-
-		for _, each := range t.callbackFunc.AfterEach {
-			if !each(ctx).IsContinue {
-				return models.ContextResult{}
-			}
-		}
-
-		return models.ContextResult{}
-	}
+	node.handlers = append(node.handlers, handler)
 }
 
 // Search 在路由基数树中查找路由对应的处理函数
@@ -125,7 +114,7 @@ func (t *RouteTrie) Search(path string) []models.PluginHandler {
 		}
 	}
 
-	if node.handler == nil {
+	if node.handlers == nil {
 		return t.callbackFunc.OnNotFound
 	}
 
@@ -136,7 +125,14 @@ func (t *RouteTrie) Search(path string) []models.PluginHandler {
 				ctx.Params = params
 			}
 
-			return node.handler(ctx)
+			res := models.ContextResult{}
+			for _, handler := range node.handlers {
+				if res = handler(ctx); !res.IsContinue {
+					return res
+				}
+			}
+
+			return res
 		},
 	}
 }
@@ -174,7 +170,7 @@ func (t *RouteTrie) SearchAndExec(ctx *models.MessageContext) {
 		}
 	}
 
-	if node.handler == nil {
+	if node.handlers == nil {
 		for _, handler := range t.callbackFunc.OnNotFound {
 			handler(ctx)
 		}
@@ -182,6 +178,18 @@ func (t *RouteTrie) SearchAndExec(ctx *models.MessageContext) {
 	}
 
 	ctx.Params = params
-	node.handler(ctx)
+	for _, handler := range node.handlers {
+		// 终止
+		if !handler(ctx).IsContinue {
+			return
+		}
+	}
+
+	// 执行所有AfterEach回调函数
+	for _, handler := range t.callbackFunc.AfterEach {
+		if !handler(ctx).IsContinue {
+			return
+		}
+	}
 
 }

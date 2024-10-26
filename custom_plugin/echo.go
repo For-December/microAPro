@@ -14,7 +14,7 @@ type Echo struct {
 var _ models.PluginInterface = &Echo{}
 
 func (e *Echo) GetPluginInfo() string {
-	return "Echo -> 回显\n${echo|ec [文本]}"
+	return "Echo -> 回显\n${echo|ec [文本 | 图片 | @群友 文本]}"
 }
 
 func (e *Echo) GetPaths() []string {
