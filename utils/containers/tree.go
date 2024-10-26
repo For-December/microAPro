@@ -15,17 +15,19 @@ type RouteTrieNode struct {
 
 // RouteTrie 路由基数树
 type RouteTrie struct {
-	afterFunc models.PluginHandler
-	root      *RouteTrieNode
+	callbackFunc models.CallbackFunc
+	root         *RouteTrieNode
+
+	depth int
 }
 
 // NewRouteTrie 创建一个新的路由基数树
-func NewRouteTrie(afterFunc models.PluginHandler) *RouteTrie {
+func NewRouteTrie(callbackFunc models.CallbackFunc) *RouteTrie {
 	return &RouteTrie{
 		root: &RouteTrieNode{
 			children: make(map[string]*RouteTrieNode),
 		},
-		afterFunc: afterFunc,
+		callbackFunc: callbackFunc,
 	}
 }
 
@@ -37,13 +39,17 @@ func (t *RouteTrie) Insert(path string, handler models.PluginHandler) {
 		if part == "" {
 			continue
 		}
-		if part[0] == ':' {
-			node.children[part[1:]] = &RouteTrieNode{
-				children:  make(map[string]*RouteTrieNode),
-				isParam:   true,
-				paramName: part[1:],
+		if part[0] == ':' { // 参数节点，用空字符串表示该特殊节点
+			if _, ok := node.children[""]; !ok {
+				node.children[""] = &RouteTrieNode{
+					children:  make(map[string]*RouteTrieNode),
+					isParam:   true,
+					paramName: part[1:],
+				}
 			}
-			node = node.children[part[1:]]
+
+			// 将子节点作为当前节点
+			node = node.children[""]
 		} else {
 			if _, ok := node.children[part]; !ok {
 				node.children[part] = &RouteTrieNode{
@@ -53,15 +59,17 @@ func (t *RouteTrie) Insert(path string, handler models.PluginHandler) {
 			node = node.children[part]
 		}
 
+		t.depth++
+
 	}
 	node.handler = func(ctx *models.MessageContext) models.ContextResult {
-		if handler(ctx).IsFinished {
+		if handler(ctx).IsContinue {
 			return models.ContextResult{
-				IsFinished: true,
+				IsContinue: true,
 			}
 		}
 
-		return t.afterFunc(ctx)
+		return t.callbackFunc.AfterEach(ctx)
 	}
 }
 
@@ -76,23 +84,30 @@ func (t *RouteTrie) Search(path string) models.PluginHandler {
 			continue
 		}
 
-		if node.isParam {
-			// 如果是参数节点，将参数值存入params
-			params[node.paramName] = part
-
-			// 继续查找下一个节点
-			node = node.children[node.paramName]
-
-		} else if _, ok := node.children[part]; ok {
+		// 如果当前是路径的一部分，继续查找
+		if _, ok := node.children[part]; ok {
 			node = node.children[part]
+
+			// 否则当前可能是参数，查找此路径下面的参数节点
+		} else if _, ok = node.children[""]; ok {
+			params[node.children[""].paramName] = part
+			node = node.children[""]
 		} else {
 			// 不是参数节点，也找不到这部分对应的节点，返回nil
 			return nil
 		}
 	}
+
+	if node.handler == nil {
+		return t.callbackFunc.OnNotFound
+	}
+
 	return func(ctx *models.MessageContext) models.ContextResult {
 		// 代理函数
-		ctx.Params = params
+		if ctx != nil {
+			ctx.Params = params
+		}
+
 		return node.handler(ctx)
 	}
 }
