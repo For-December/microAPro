@@ -7,4 +7,7 @@ type MessageContext struct {
 	GroupId      int           `json:"group_id"`
 	UserId       int           `json:"user_id"`
 	MessageChain *MessageChain `json:"message_chain"`
+
+	// 内部路由使用
+	Params map[string]string
 }

@@ -11,6 +11,9 @@ import (
 	"strings"
 )
 
+// 匿名变量保证了AIChat实现了PluginBaseInterface接口
+var _ models.PluginBaseInterface = &AIChat{}
+
 type AIChat struct{}
 
 func (a *AIChat) GetPluginInfo() string {
