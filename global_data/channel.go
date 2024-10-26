@@ -11,4 +11,4 @@ var BotActionChannel = make(chan string, define.ChannelBufferSize)
 
 var BotMessageIdStack = containers.NewCustomStack[int](20, 2*time.Minute)
 
-var CustomPlugins = make([]models.PluginBaseInterface, 0)
+var CustomPlugins = make([]models.PluginInterface, 0)

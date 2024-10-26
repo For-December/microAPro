@@ -103,12 +103,18 @@ func TestTreeSuper(t *testing.T) {
 	}
 
 	ctx2 := &models.MessageContext{
-		MessageChain: (&models.MessageChain{}).At("123").Text("test").Text("你好"),
+		MessageChain: (&models.MessageChain{}).Reply("123").Text("test").Text("你好"),
 	}
 
 	fn = trie.Search(ctx2.MessageChain.ToPath())
 	if fn != nil {
 		fn(ctx2)
 	}
+
+	ctx3 := &models.MessageContext{
+		MessageChain: (&models.MessageChain{}).Reply("123").Text("test 你好"),
+	}
+
+	trie.Search(ctx3.MessageChain.ToPath())(ctx3)
 
 }

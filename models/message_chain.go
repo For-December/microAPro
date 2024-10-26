@@ -2,7 +2,6 @@ package models
 
 import (
 	"microAPro/models/entity"
-	"strings"
 )
 
 type MessageChain struct {
@@ -23,11 +22,7 @@ func (receiver *MessageChain) ToPath() string {
 	for _, message := range receiver.Messages {
 		switch message.MessageType {
 		case "text":
-			// 去除所有text中的空格
-			resStr += " " + strings.ReplaceAll(
-				message.MessageContent["text"].(string),
-				" ",
-				"")
+			resStr += " " + message.MessageContent["text"].(string)
 		case "image":
 			resStr += " <-image->[" + message.MessageContent["file"].(string) + "]"
 		case "record":

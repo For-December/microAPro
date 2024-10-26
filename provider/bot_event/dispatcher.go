@@ -6,18 +6,36 @@ import (
 	"microAPro/custom_plugin"
 	"microAPro/global_data"
 	"microAPro/models"
+	"microAPro/utils/containers"
 	"microAPro/utils/logger"
 )
 
 var botEventChannel = make(chan []byte, define.ChannelBufferSize)
 
+var trie *containers.RouteTrie
+
 // 注册插件
 func registerCustomPlugins() {
 	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.BotInfos{})
-	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.VoiceReply{})
-	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.RecallSelf{})
+	//global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.VoiceReply{})
+	//global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.RecallSelf{})
 	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.AIChat{})
-	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.GroupLogs{})
+	//global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.GroupLogs{})
+
+	// 树形路由匹配注册
+	trie = containers.NewRouteTrie(models.CallbackFunc{
+		OnNotFound: func(ctx *models.MessageContext) models.ContextResult {
+			logger.Warning("Not found handler")
+			return models.ContextResult{}
+		},
+	})
+	for _, plugin := range global_data.CustomPlugins {
+		paths := plugin.GetPaths()
+		for _, path := range paths {
+			trie.Insert(path, plugin.GetPluginHandler())
+		}
+
+	}
 }
 
 func runDispatcher() {
@@ -34,18 +52,7 @@ func runDispatcher() {
 func executePlugins(ctx *models.MessageContext) {
 
 	// 改成树形路由匹配
-	for _, plugin := range global_data.CustomPlugins {
-
-		result := plugin.ContextFilter(ctx)
-
-		if result.ErrMsg != nil {
-			logger.Warning("plugin.ContextFilter err: ", result.ErrMsg)
-		}
-
-		if result.BreakFilter {
-			return
-		}
-	}
+	trie.Search(ctx.MessageChain.ToPath())(ctx)
 }
 
 func dispatcher(msg []byte) {

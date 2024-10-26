@@ -11,6 +11,8 @@ type PluginBaseInterface interface {
 	GetPluginInfo() string
 }
 
+// 树形匹配
+
 type ContextResult struct {
 	IsContinue bool
 	Error      error
@@ -24,7 +26,7 @@ type CallbackFunc struct {
 }
 
 type PluginInterface interface {
-	GetPath() string // ban [user] [duration]
+	GetPaths() []string // ban [user] [duration]
 	GetPluginInfo() string
 	GetPluginHandler() PluginHandler
 }

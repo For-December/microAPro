@@ -68,7 +68,11 @@ func (t *RouteTrie) Insert(path string, handler models.PluginHandler) {
 				IsContinue: true,
 			}
 		}
-
+		if t.callbackFunc.AfterEach == nil {
+			return models.ContextResult{
+				IsContinue: false,
+			}
+		}
 		return t.callbackFunc.AfterEach(ctx)
 	}
 }
