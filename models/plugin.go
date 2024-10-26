@@ -10,3 +10,10 @@ type PluginBaseInterface interface {
 
 	GetPluginInfo() string
 }
+
+type PluginInterface interface {
+	GetPath() string // ban [user] [duration]
+	GetPluginInfo() string
+
+	ContextFilter(ctx *MessageContext) ContextFilterResult
+}

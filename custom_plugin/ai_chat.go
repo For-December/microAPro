@@ -46,7 +46,8 @@ func (a *AIChat) ContextFilter(
 
 	//logger.InfoF("[%d] -> %s", ctx.GroupId, questionStr)
 
-	prompt := "你是一名杭州一中的高二女生，性格温柔但爱憎分明，下面是某个群友的发言，请给出适当回应："
+	//prompt := "你是一名杭州一中的高二女生，性格温柔但爱憎分明，下面是某个群友的发言，请给出适当回应："
+	prompt := ""
 
 	if strings.Contains(questionStr, "开发者模式 on") {
 		logger.Debug("启用开发者模式")
