@@ -12,30 +12,37 @@ import (
 
 type GroupLogs struct{}
 
+var _ models.PluginInterface = &GroupLogs{}
+
 func (g *GroupLogs) GetPluginInfo() string {
 	return "GroupLogs -> 记录和群聊相关的运行日志"
 }
-
-func (g *GroupLogs) ContextFilter(
-	ctx *models.MessageContext,
-) models.ContextFilterResult {
-	logger.DebugF("[group:%d]-[user:%d] => %s", ctx.GroupId, ctx.UserId, ctx.MessageChain.ToString())
-
-	marshalString, err := sonic.MarshalString(ctx.MessageChain.ToJsonTypeMessage())
-	if err != nil {
-		logger.Error(err)
-		return models.ContextFilterResult{}
+func (g *GroupLogs) GetPaths() []string {
+	return []string{
+		"**",
 	}
+}
 
-	if err := database.Client.Save(&dbmodels.GroupLog{
-		ID:        0,
-		GroupID:   utils.ToString(ctx.GroupId),
-		UserID:    utils.ToString(ctx.UserId),
-		Message:   marshalString,
-		CreatedAt: time.Time{},
-		UpdatedAt: time.Time{},
-	}).Error; err != nil {
-		logger.Error(err)
+func (g *GroupLogs) GetPluginHandler() models.PluginHandler {
+	return func(ctx *models.MessageContext) models.ContextResult {
+		logger.DebugF("[group:%d]-[user:%d] => %s", ctx.GroupId, ctx.UserId, ctx.MessageChain.ToString())
+
+		marshalString, err := sonic.MarshalString(ctx.MessageChain.ToJsonTypeMessage())
+		if err != nil {
+			logger.Error(err)
+			return models.ContextResult{}
+		}
+
+		if err := database.Client.Save(&dbmodels.GroupLog{
+			ID:        0,
+			GroupID:   utils.ToString(ctx.GroupId),
+			UserID:    utils.ToString(ctx.UserId),
+			Message:   marshalString,
+			CreatedAt: time.Time{},
+			UpdatedAt: time.Time{},
+		}).Error; err != nil {
+			logger.Error(err)
+		}
+		return models.ContextResult{}
 	}
-	return models.ContextFilterResult{}
 }

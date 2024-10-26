@@ -20,15 +20,11 @@ func registerCustomPlugins() {
 	//global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.VoiceReply{})
 	//global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.RecallSelf{})
 	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.AIChat{})
-	//global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.GroupLogs{})
+	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.GroupLogs{})
 
 	// 树形路由匹配注册
-	trie = containers.NewRouteTrie(models.CallbackFunc{
-		OnNotFound: func(ctx *models.MessageContext) models.ContextResult {
-			logger.Warning("Not found handler")
-			return models.ContextResult{}
-		},
-	})
+	trie = containers.NewRouteTrie(models.CallbackFunc{})
+
 	for _, plugin := range global_data.CustomPlugins {
 		paths := plugin.GetPaths()
 		for _, path := range paths {
@@ -52,7 +48,7 @@ func runDispatcher() {
 func executePlugins(ctx *models.MessageContext) {
 
 	// 改成树形路由匹配
-	trie.Search(ctx.MessageChain.ToPath())(ctx)
+	trie.SearchAndExec(ctx)
 }
 
 func dispatcher(msg []byte) {
@@ -75,7 +71,7 @@ func dispatcher(msg []byte) {
 				logger.Error("groupMessage err: ", string(msg), err)
 				return
 			}
-			logger.Info(string(msg))
+			//logger.Info(string(msg))
 
 			// 消息链
 			messageChain := &models.MessageChain{

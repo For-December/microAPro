@@ -21,8 +21,8 @@ type ContextResult struct {
 type PluginHandler func(ctx *MessageContext) ContextResult
 
 type CallbackFunc struct {
-	AfterEach  PluginHandler
-	OnNotFound PluginHandler
+	AfterEach  []PluginHandler
+	OnNotFound []PluginHandler
 }
 
 type PluginInterface interface {

@@ -6,17 +6,22 @@ import (
 	"testing"
 )
 
-func TestTreeBase(t *testing.T) {
-	trie := NewRouteTrie(models.CallbackFunc{
-		AfterEach: func(ctx *models.MessageContext) models.ContextResult {
+var trie = NewRouteTrie(models.CallbackFunc{
+	AfterEach: []models.PluginHandler{
+		func(ctx *models.MessageContext) models.ContextResult {
 			println("After each handler")
 			return models.ContextResult{}
 		},
-		OnNotFound: func(ctx *models.MessageContext) models.ContextResult {
+	},
+	OnNotFound: []models.PluginHandler{
+		func(ctx *models.MessageContext) models.ContextResult {
 			println("Not found handler")
 			return models.ContextResult{}
 		},
-	})
+	},
+})
+
+func TestTreeBase(t *testing.T) {
 
 	// 插入路由和处理函数
 	trie.Insert("home", func(ctx *models.MessageContext) models.ContextResult {
@@ -44,40 +49,32 @@ func TestTreeBase(t *testing.T) {
 	})
 
 	// 搜索路由并执行处理函数
-	handler := trie.Search("home")
-	if handler != nil {
+	handlers := trie.Search("home")
+
+	for _, handler := range handlers {
 		handler(nil)
 	}
-	handler = trie.Search("user profile")
-	if handler != nil {
+
+	handlers = trie.Search("user profile")
+	for _, handler := range handlers {
 		handler(nil)
 	}
-	handler = trie.Search("user")
-	if handler != nil {
+	handlers = trie.Search("user")
+	for _, handler := range handlers {
 		handler(nil)
 	}
-	handler = trie.Search("ask 测试 test")
-	if handler != nil {
+	handlers = trie.Search("ask 测试 test")
+	for _, handler := range handlers {
 		handler(&models.MessageContext{})
 	}
 
-	handler = trie.Search("123 test")
-	if handler != nil {
+	handlers = trie.Search("123 test")
+	for _, handler := range handlers {
 		handler(&models.MessageContext{})
 	}
 }
 
 func TestTreeSuper(t *testing.T) {
-	trie := NewRouteTrie(models.CallbackFunc{
-		AfterEach: func(ctx *models.MessageContext) models.ContextResult {
-			println("After each handler")
-			return models.ContextResult{}
-		},
-		OnNotFound: func(ctx *models.MessageContext) models.ContextResult {
-			println("Not found handler")
-			return models.ContextResult{}
-		},
-	})
 
 	trie.Insert("@ $qq test", func(ctx *models.MessageContext) models.ContextResult {
 		for k, v := range ctx.Params {
@@ -97,24 +94,16 @@ func TestTreeSuper(t *testing.T) {
 		MessageChain: (&models.MessageChain{}).At("123").Text("test"),
 	}
 
-	fn := trie.Search(ctx1.MessageChain.ToPath())
-	if fn != nil {
-		fn(ctx1)
-	}
-
 	ctx2 := &models.MessageContext{
 		MessageChain: (&models.MessageChain{}).Reply("123").Text("test").Text("你好"),
-	}
-
-	fn = trie.Search(ctx2.MessageChain.ToPath())
-	if fn != nil {
-		fn(ctx2)
 	}
 
 	ctx3 := &models.MessageContext{
 		MessageChain: (&models.MessageChain{}).Reply("123").Text("test 你好"),
 	}
 
-	trie.Search(ctx3.MessageChain.ToPath())(ctx3)
+	trie.SearchAndExec(ctx1)
+	trie.SearchAndExec(ctx2)
+	trie.SearchAndExec(ctx3)
 
 }
