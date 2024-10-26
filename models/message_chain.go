@@ -24,7 +24,7 @@ func (receiver *MessageChain) ToPath() string {
 		case "text":
 			resStr += " " + message.MessageContent["text"].(string)
 		case "image":
-			resStr += " <-image->[" + message.MessageContent["file"].(string) + "]"
+			resStr += " # " + message.MessageContent["file"].(string) + ""
 		case "record":
 			resStr += " <-record->[" + message.MessageContent["file"].(string) + "]"
 		case "at":
