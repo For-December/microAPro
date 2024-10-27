@@ -31,7 +31,7 @@ func (b *BotInfos) GetPluginHandler() models.PluginHandler {
 	return func(ctx *models.MessageContext) models.ContextResult {
 		resStr := "功能清单：\n"
 		for i, plugin := range global_data.CustomPlugins {
-			resStr += fmt.Sprintf("[%d]: %s\n", i+1, plugin.GetPluginInfo())
+			resStr += fmt.Sprintf("[%d]: %s\n\n", i+1, plugin.GetPluginInfo())
 		}
 
 		bot_action.BotActionAPIInstance.SendGroupMessage(
