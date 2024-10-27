@@ -20,8 +20,8 @@ func (t *Translate) GetPluginInfo() string {
 
 func (t *Translate) GetPaths() []string {
 	cmdStrArr := []string{
-		"translate",
-		"tr",
+		"translateTo",
+		"tr2",
 	}
 	res := make([]string, 0)
 
