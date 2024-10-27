@@ -19,7 +19,7 @@ func (g *GroupLogs) GetPluginInfo() string {
 }
 func (g *GroupLogs) GetPaths() []string {
 	return []string{
-		"**",
+		"!!",
 	}
 }
 

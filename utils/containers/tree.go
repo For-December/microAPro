@@ -48,8 +48,10 @@ func NewRouteTrie(callbackFunc models.CallbackFunc) *RouteTrie {
 }
 
 // Insert 在路由基数树中插入路由和对应的处理函数
+// 优先级 !! > 精确匹配 > **, **只能放到最后
+// !! 代表无论什么情况都会执行的回调函数，按插入顺序先后排优先级
 func (t *RouteTrie) Insert(path string, handler models.PluginHandler) {
-	if path == "**" {
+	if path == "!!" {
 		// 无论什么情况都会执行的回调函数，按插入顺序先后排优先级
 		t.callbackFunc.AfterEach = append(t.callbackFunc.AfterEach, handler)
 		t.callbackFunc.OnNotFound = append(t.callbackFunc.OnNotFound, handler)
@@ -73,7 +75,7 @@ func (t *RouteTrie) Insert(path string, handler models.PluginHandler) {
 
 			// 将子节点作为当前节点
 			node = node.children[""]
-		} else {
+		} else { // 包含精确匹配和通配符匹配**
 			if _, ok := node.children[part]; !ok {
 				node.children[part] = &RouteTrieNode{
 					children: make(map[string]*RouteTrieNode),
@@ -95,7 +97,7 @@ func (t *RouteTrie) Search(path string) []models.PluginHandler {
 	node := t.root
 	params := make(map[string]string)
 
-	for _, part := range parts {
+	for i, part := range parts {
 		if part == "" {
 			continue
 		}
@@ -108,8 +110,15 @@ func (t *RouteTrie) Search(path string) []models.PluginHandler {
 		} else if _, ok = node.children[""]; ok {
 			params[node.children[""].paramName] = part
 			node = node.children[""]
+
+			// 否则可能是通配符节点
+		} else if _, ok = node.children["**"]; ok {
+			// 将指令后面的所有内容作为**匹配到的值（所以通配符**只能放到最后）
+			node = node.children["**"]
+			params["**"] = strings.Join(parts[i:], " ")
+			break
 		} else {
-			// 不是参数节点，也找不到这部分对应的节点，返回404回调函数
+			// 不是参数节点，也找不到这部分对应的精确节点或通配符节点，返回404回调函数
 			return t.callbackFunc.OnNotFound
 		}
 	}
@@ -148,7 +157,7 @@ func (t *RouteTrie) SearchAndExec(ctx *models.MessageContext) {
 	node := t.root
 	params := make(map[string]string)
 
-	for _, part := range parts {
+	for i, part := range parts {
 		if part == "" {
 			continue
 		}
@@ -161,8 +170,13 @@ func (t *RouteTrie) SearchAndExec(ctx *models.MessageContext) {
 		} else if _, ok = node.children[""]; ok {
 			params[node.children[""].paramName] = part
 			node = node.children[""]
+		} else if _, ok = node.children["**"]; ok {
+			// 将指令后面的所有内容作为**匹配到的值（所以通配符**只能放到最后）
+			node = node.children["**"]
+			params["**"] = strings.Join(parts[i:], " ")
+			break
 		} else {
-			// 不是参数节点，也找不到这部分对应的节点，执行所有404回调函数
+			//不是参数节点，也找不到这部分对应的精确节点或通配符节点，执行所有404回调函数
 			for _, handler := range t.callbackFunc.OnNotFound {
 				handler(ctx)
 			}

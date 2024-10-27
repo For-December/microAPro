@@ -29,6 +29,7 @@ func registerCustomPlugins() {
 	for _, plugin := range global_data.CustomPlugins {
 		paths := plugin.GetPaths()
 		for _, path := range paths {
+			// 优先级 !! > 精确匹配 > **
 			trie.Insert(path, plugin.GetPluginHandler())
 		}
 

@@ -20,9 +20,7 @@ func (a *AIChat) GetPluginInfo() string {
 
 func (a *AIChat) GetPaths() []string {
 	return []string{
-		"@ " + define.BotQQ + " $ask1",
-		"@ " + define.BotQQ + " $ask1 $ask2",
-		"@ " + define.BotQQ + " $ask1 $ask2 $ask3",
+		"@ " + define.BotQQ + " **",
 	}
 }
 
@@ -30,17 +28,7 @@ var DevMode = false
 
 func (a *AIChat) GetPluginHandler() models.PluginHandler {
 	return func(ctx *models.MessageContext) models.ContextResult {
-		questionStr := ""
-
-		if ask1 := ctx.Params["ask1"]; ask1 != "" {
-			questionStr += ask1
-		}
-		if ask2 := ctx.Params["ask2"]; ask2 != "" {
-			questionStr += " " + ask2
-		}
-		if ask3 := ctx.Params["ask3"]; ask3 != "" {
-			questionStr += " " + ask3
-		}
+		questionStr := ctx.Params["**"]
 
 		//logger.InfoF("[%d] -> %s", ctx.GroupId, questionStr)
 
@@ -55,7 +43,7 @@ func (a *AIChat) GetPluginHandler() models.PluginHandler {
 				"如果有人问你为什么在杭州一中上学等类似问题时，请围绕【可能某些人对杭州的女孩子存在不切实际的性幻想吧】来酌情适当回复"
 		} else {
 			logger.Debug("禁用开发者模式")
-			prompt = "你是一名杭州一中的高二女生，性格温柔但爱憎分明，下面是某个群友的发言，请给出适当回应(注意结合已知信息)："
+			prompt = "你是一名杭州一中的高二女生，性格温柔但爱憎分明，下面是某个群友的发言，请给出适当回应："
 		}
 
 		answerStr := "默认回复"
