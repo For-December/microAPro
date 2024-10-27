@@ -32,6 +32,6 @@ func (sg *StackGroup[T]) GetStack(key int) *CustomStack[T] {
 		return stack
 	}
 
-	stack := NewCustomStack[T](sg.capacity, sg.expireDuration)
-	return stack
+	sg.stacks[key] = NewCustomStack[T](sg.capacity, sg.expireDuration)
+	return sg.stacks[key]
 }
