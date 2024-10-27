@@ -24,18 +24,22 @@ type RouteTrie struct {
 // NewRouteTrie 创建一个新的路由基数树
 func NewRouteTrie(callbackFunc models.CallbackFunc) *RouteTrie {
 
-	// 如果没有设置回调函数，使用默认的回调函数
+	// 如果没有设置回调函数，使用默认的回调函数，可穿透
 	if callbackFunc.OnNotFound == nil {
 		callbackFunc.OnNotFound = append(callbackFunc.OnNotFound,
 			func(ctx *models.MessageContext) models.ContextResult {
-				return models.ContextResult{}
+				return models.ContextResult{
+					IsContinue: true,
+				}
 			})
 	}
 
 	if callbackFunc.AfterEach == nil {
 		callbackFunc.AfterEach = append(callbackFunc.AfterEach,
 			func(ctx *models.MessageContext) models.ContextResult {
-				return models.ContextResult{}
+				return models.ContextResult{
+					IsContinue: true,
+				}
 			})
 	}
 
