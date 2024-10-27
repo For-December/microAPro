@@ -9,7 +9,10 @@ import (
 //var EnvCfg envConfig
 
 var EnvCfg = struct {
-	DouBaoApiKey string `env:"DOU_BAO_API_KEY"`
+	DouBaoApiKey   string `env:"DOU_BAO_API_KEY"`
+	BaiDuAppId     string `env:"BAI_DU_APP_ID"`
+	BaiDuSecretKey string `env:"BAI_DU_SECRET_KEY"`
+	BaiDuSalt      string `env:"BAI_DU_SALT"`
 }{}
 
 func init() {
