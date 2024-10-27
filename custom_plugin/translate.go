@@ -60,7 +60,7 @@ func (t *Translate) GetPluginHandler() models.PluginHandler {
 				Text(" ").Text(toLangFunc(text)),
 			func(messageId int) {
 				// 将messageId保存
-				global_data.BotMessageIdStack.Push(messageId)
+				global_data.BotMessageIdStack.GetStack(ctx.GroupId).Push(messageId)
 			})
 		return models.ContextResult{}
 	}

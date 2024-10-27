@@ -11,7 +11,7 @@ type RecallSelf struct{}
 var _ models.PluginInterface = &RecallSelf{}
 
 func (r *RecallSelf) GetPluginInfo() string {
-	return "RecallSelf -> 撤回bot自己的消息\n${r|recall|recall_self|撤回}"
+	return "RecallSelf -> 撤回当前群小A的消息\n${r|recall|recall_self|撤回}"
 }
 
 func (r *RecallSelf) GetPaths() []string {
@@ -26,7 +26,7 @@ func (r *RecallSelf) GetPaths() []string {
 func (r *RecallSelf) GetPluginHandler() models.PluginHandler {
 	return func(ctx *models.MessageContext) models.ContextResult {
 		// 撤回自己的消息
-		messageId, ok := global_data.BotMessageIdStack.Pop()
+		messageId, ok := global_data.BotMessageIdStack.GetStack(ctx.GroupId).Pop()
 
 		if ok {
 			bot_action.BotActionAPIInstance.RecallMessage(messageId)

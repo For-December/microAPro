@@ -63,7 +63,7 @@ func (a *AIChat) GetPluginHandler() models.PluginHandler {
 			}).At(utils.ToString(ctx.UserId)).Text(" ").Text(answerStr),
 			func(messageId int) {
 				// 将messageId保存
-				global_data.BotMessageIdStack.Push(messageId)
+				global_data.BotMessageIdStack.GetStack(ctx.GroupId).Push(messageId)
 				println("id---------------> ", messageId)
 			})
 

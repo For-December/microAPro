@@ -51,7 +51,7 @@ func (e *Echo) GetPluginHandler() models.PluginHandler {
 				}).At(utils.ToString(ctx.UserId)).Image(image),
 				func(messageId int) {
 					// 将messageId保存
-					global_data.BotMessageIdStack.Push(messageId)
+					global_data.BotMessageIdStack.GetStack(ctx.GroupId).Push(messageId)
 				})
 			return models.ContextResult{}
 		}
@@ -63,7 +63,7 @@ func (e *Echo) GetPluginHandler() models.PluginHandler {
 				}).At(qq).Text(" ").Text(text),
 				func(messageId int) {
 					// 将messageId保存
-					global_data.BotMessageIdStack.Push(messageId)
+					global_data.BotMessageIdStack.GetStack(ctx.GroupId).Push(messageId)
 				})
 			return models.ContextResult{}
 		}
@@ -74,7 +74,7 @@ func (e *Echo) GetPluginHandler() models.PluginHandler {
 			}).At(utils.ToString(ctx.UserId)).Text(" ").Text(text),
 			func(messageId int) {
 				// 将messageId保存
-				global_data.BotMessageIdStack.Push(messageId)
+				global_data.BotMessageIdStack.GetStack(ctx.GroupId).Push(messageId)
 			})
 		return models.ContextResult{}
 	}

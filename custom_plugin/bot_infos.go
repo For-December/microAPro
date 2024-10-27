@@ -39,7 +39,7 @@ func (b *BotInfos) GetPluginHandler() models.PluginHandler {
 				GroupId: ctx.GroupId,
 			}).Text(resStr)),
 			func(messageId int) {
-				global_data.BotMessageIdStack.Push(messageId)
+				global_data.BotMessageIdStack.GetStack(ctx.GroupId).Push(messageId)
 			})
 		return models.ContextResult{}
 	}
