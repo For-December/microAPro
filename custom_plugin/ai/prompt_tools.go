@@ -3,8 +3,39 @@ package ai
 import (
 	"fmt"
 	"microAPro/utils/logger"
+	"sync"
 	"time"
 )
+
+var historyArrayMap = make(map[int][]MessageMeta)
+var mutex = new(sync.Mutex)
+
+func GetMsgMetaWithHistory(groupId int, prompt string, meta MessageMeta) []MessageMeta {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	if _, ok := historyArrayMap[groupId]; ok {
+		if prompt != "" {
+			historyArrayMap[groupId][0] = MessageMeta{
+				Role:    "system",
+				Content: ProcessPromptWithData(prompt),
+			}
+
+			historyArrayMap[groupId] = append(historyArrayMap[groupId], meta)
+		}
+		return historyArrayMap[groupId]
+	}
+
+	historyArrayMap[groupId] = []MessageMeta{
+		{
+			Role:    "system",
+			Content: ProcessPromptWithData(prompt),
+		},
+		meta,
+	}
+
+	return historyArrayMap[groupId]
+}
 
 func ProcessPromptWithData(prompt string) string {
 

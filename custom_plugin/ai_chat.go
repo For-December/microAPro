@@ -54,7 +54,7 @@ func (a *AIChat) GetPluginHandler() models.PluginHandler {
 			DevMode = false
 			answerStr = "AI开发者模式已关闭"
 		} else {
-			answerStr = ai.ChatMsgWithHistory(questionStr, prompt)
+			answerStr = ai.ChatMsgWithHistory(ctx.GroupId, questionStr, prompt)
 		}
 
 		bot_action.BotActionAPIInstance.SendGroupMessage(
