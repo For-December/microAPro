@@ -24,6 +24,7 @@ func registerCustomPlugins() {
 	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.Echo{})
 	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.Translate{})
 	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.NaiLongCatcher{})
+	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.ColorPic{})
 
 	// 树形路由匹配注册
 	trie = containers.NewRouteTrie(models.CallbackFunc{})
