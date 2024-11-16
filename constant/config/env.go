@@ -18,6 +18,9 @@ var EnvCfg = struct {
 
 	BotAccounts  []int64  `env:"BOT_ACCOUNTS"`
 	BotEndpoints []string `env:"BOT_ENDPOINTS"`
+
+	DouBaoAccessKey string `env:"DOU_BAO_ACCESS_KEY"`
+	DouBaoSecretKey string `env:"DOU_BAO_SECRET_KEY"`
 }{}
 
 func init() {
