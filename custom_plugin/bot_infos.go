@@ -11,6 +11,10 @@ import (
 
 type BotInfos struct{}
 
+func (b *BotInfos) GetScope() uint32 {
+	return define.GroupScope
+}
+
 var _ plugin_tree.PluginInterface = &BotInfos{}
 
 func (b *BotInfos) GetPluginInfo() string {

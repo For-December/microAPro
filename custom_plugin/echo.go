@@ -2,6 +2,7 @@ package custom_plugin
 
 import (
 	"fmt"
+	"microAPro/constant/define"
 	"microAPro/global_data"
 	"microAPro/models"
 	"microAPro/models/plugin_tree"
@@ -9,6 +10,11 @@ import (
 )
 
 type Echo struct {
+}
+
+func (e *Echo) GetScope() uint32 {
+	return define.GroupScope | define.PrivateScope
+
 }
 
 var _ plugin_tree.PluginInterface = &Echo{}

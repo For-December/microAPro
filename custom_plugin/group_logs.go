@@ -3,6 +3,7 @@ package custom_plugin
 import (
 	"github.com/bytedance/sonic"
 	"gorm.io/gorm/utils"
+	"microAPro/constant/define"
 	"microAPro/dbmodels"
 	"microAPro/models"
 	"microAPro/models/plugin_tree"
@@ -13,6 +14,11 @@ import (
 )
 
 type GroupLogs struct{}
+
+func (g *GroupLogs) GetScope() uint32 {
+	return define.GroupScope
+
+}
 
 var _ plugin_tree.PluginInterface = &GroupLogs{}
 

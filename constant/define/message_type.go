@@ -8,3 +8,8 @@ const (
 	PrivateMsg MessageType = "private"
 	TempMsg    MessageType = "temp"
 )
+
+const (
+	GroupScope   uint32 = 1 << 0
+	PrivateScope uint32 = 1 << 1
+)

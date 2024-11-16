@@ -15,6 +15,10 @@ var _ plugin_tree.PluginInterface = &AIChat{}
 
 type AIChat struct{}
 
+func (a *AIChat) GetScope() uint32 {
+	return define.GroupScope
+}
+
 func (a *AIChat) GetPluginInfo() string {
 	return "AIChat -> 内置ai"
 }

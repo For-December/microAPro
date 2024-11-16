@@ -3,6 +3,7 @@ package custom_plugin
 import (
 	"fmt"
 	"gorm.io/gorm/utils"
+	"microAPro/constant/define"
 	"microAPro/custom_plugin/translate"
 	"microAPro/global_data"
 	"microAPro/models"
@@ -11,6 +12,11 @@ import (
 )
 
 type Translate struct {
+}
+
+func (t *Translate) GetScope() uint32 {
+	return define.GroupScope
+
 }
 
 var _ plugin_tree.PluginInterface = &Translate{}

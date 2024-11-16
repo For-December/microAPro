@@ -1,6 +1,7 @@
 package custom_plugin
 
 import (
+	"microAPro/constant/define"
 	"microAPro/global_data"
 	"microAPro/models"
 	"microAPro/models/plugin_tree"
@@ -8,6 +9,11 @@ import (
 )
 
 type RecallSelf struct{}
+
+func (r *RecallSelf) GetScope() uint32 {
+	return define.GroupScope
+
+}
 
 var _ plugin_tree.PluginInterface = &RecallSelf{}
 

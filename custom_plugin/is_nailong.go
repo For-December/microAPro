@@ -2,6 +2,7 @@ package custom_plugin
 
 import (
 	"encoding/json"
+	"microAPro/constant/define"
 	"microAPro/models"
 	"microAPro/models/plugin_tree"
 	"microAPro/netman"
@@ -11,6 +12,11 @@ import (
 )
 
 type NaiLongCatcher struct{}
+
+func (n *NaiLongCatcher) GetScope() uint32 {
+	return define.GroupScope
+
+}
 
 var _ plugin_tree.PluginInterface = &NaiLongCatcher{}
 

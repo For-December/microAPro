@@ -38,4 +38,6 @@ type PluginInterface interface {
 	GetPaths() []string // ban [user] [duration]
 	GetPluginInfo() string
 	GetPluginHandler() PluginHandler
+
+	GetScope() uint32
 }
