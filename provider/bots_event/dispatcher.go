@@ -4,10 +4,12 @@ import (
 	"github.com/bytedance/sonic"
 	"microAPro/constant/define"
 	"microAPro/custom_plugin"
-	"microAPro/global_data"
 	"microAPro/models"
+	"microAPro/models/plugin_tree"
+	"microAPro/provider/bot_action"
 	"microAPro/utils/containers"
 	"microAPro/utils/logger"
+	"sync"
 )
 
 func init() {
@@ -18,20 +20,20 @@ var trie *containers.RouteTrie
 
 // 注册插件，将处理函数放到基数树中
 func registerCustomPlugins() {
-	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.BotInfos{})
+	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.BotInfos{})
 	//global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.VoiceReply{})
-	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.RecallSelf{})
-	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.AIChat{})
-	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.GroupLogs{})
-	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.Echo{})
-	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.Translate{})
-	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.NaiLongCatcher{})
-	global_data.CustomPlugins = append(global_data.CustomPlugins, &custom_plugin.ColorPic{})
+	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.RecallSelf{})
+	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.AIChat{})
+	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.GroupLogs{})
+	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.Echo{})
+	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.Translate{})
+	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.NaiLongCatcher{})
+	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.ColorPic{})
 
 	// 树形路由匹配注册
-	trie = containers.NewRouteTrie(models.CallbackFunc{})
+	trie = containers.NewRouteTrie(plugin_tree.CallbackFunc{})
 
-	for _, plugin := range global_data.CustomPlugins {
+	for _, plugin := range plugin_tree.CustomPlugins {
 		paths := plugin.GetPaths()
 		for _, path := range paths {
 			// 优先级 !! > 精确匹配 > **
@@ -41,11 +43,13 @@ func registerCustomPlugins() {
 	}
 }
 
-func runDispatcher() {
+func runDispatcher(wg *sync.WaitGroup) {
 	// 多个调度器处理对应channel数据
 	for _, channel := range botsEventChannels {
 		// 通道传参，实际上是指针传递，因为通道本事是指针
 		go func(ch chan []byte) {
+			wg.Add(1)
+			defer wg.Done()
 			for {
 				select {
 				case msg := <-ch:
@@ -58,10 +62,10 @@ func runDispatcher() {
 
 }
 
-func executePlugins(ctx *models.MessageContext) {
+func executePlugins(api *bot_action.BotActionAPI, ctx *models.MessageContext) {
 
 	// 改成树形路由匹配
-	trie.SearchAndExec(ctx)
+	trie.SearchAndExec(api, ctx)
 }
 
 func processMsg(msg []message,
@@ -93,12 +97,13 @@ func processMsg(msg []message,
 		}
 	}
 
-	executePlugins(&models.MessageContext{
-		BotAccount:   botAccount,
-		MessageType:  msgType,
-		MessageId:    messageId,
-		MessageChain: messageChain,
-	})
+	executePlugins(bot_action.NewBotActionAPI(botAccount),
+		&models.MessageContext{
+			BotAccount:   botAccount,
+			MessageType:  msgType,
+			MessageId:    messageId,
+			MessageChain: messageChain,
+		})
 
 }
 func dispatcher(msg []byte) {

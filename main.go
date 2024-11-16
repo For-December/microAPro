@@ -6,6 +6,7 @@ import (
 	"microAPro/provider/bots_event"
 	"microAPro/storage/database"
 	"microAPro/utils/logger"
+	"sync"
 
 	"os"
 	"os/signal"
@@ -17,12 +18,13 @@ func main() {
 		logger.Error(err)
 		return
 	}
-	//return
-	go func() {
-		bots_event.Start()
 
-	}()
-	bot_action.Start()
+	//return
+	wg := sync.WaitGroup{}
+	bots_event.Start(&wg)
+	bot_action.Start(&wg)
+
+	wg.Wait()
 
 }
 

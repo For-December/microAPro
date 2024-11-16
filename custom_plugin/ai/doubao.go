@@ -39,7 +39,7 @@ func ChatMsg(ask string) string {
 
 }
 
-func ChatMsgWithHistory(groupId int, ask, prompt string) string {
+func ChatMsgWithHistory(groupId int64, ask, prompt string) string {
 
 	historyArray := GetMsgMetaWithHistory(groupId, prompt, MessageMeta{
 		Role:    "user",

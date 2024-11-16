@@ -30,4 +30,13 @@ func init() {
 	if err := env.Parse(&EnvCfg); err != nil {
 		panic("Can not parse env from file system, please check the env.")
 	}
+	if len(EnvCfg.BotAccounts) == 0 {
+		panic("BotAccounts cannot be empty!")
+	}
+	if len(EnvCfg.BotEndpoints) == 0 {
+		panic("BotEndpoints cannot be empty!")
+	}
+	if len(EnvCfg.BotAccounts) != len(EnvCfg.BotEndpoints) {
+		panic("BotAccounts cannot match BotEndpoints!")
+	}
 }

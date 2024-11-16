@@ -2,6 +2,8 @@ package containers
 
 import (
 	"microAPro/models"
+	"microAPro/models/plugin_tree"
+	"microAPro/provider/bot_action"
 	"strings"
 )
 
@@ -10,25 +12,26 @@ type RouteTrieNode struct {
 	children map[string]*RouteTrieNode
 	//isParam   bool
 	paramName string
-	handlers  []models.PluginHandler
+	handlers  []plugin_tree.PluginHandler
 }
 
 // RouteTrie 路由基数树
 type RouteTrie struct {
-	callbackFunc models.CallbackFunc
+	callbackFunc plugin_tree.CallbackFunc
 	root         *RouteTrieNode
 
 	depth int
 }
 
 // NewRouteTrie 创建一个新的路由基数树
-func NewRouteTrie(callbackFunc models.CallbackFunc) *RouteTrie {
+func NewRouteTrie(callbackFunc plugin_tree.CallbackFunc) *RouteTrie {
 
 	// 如果没有设置回调函数，使用默认的回调函数，可穿透
 	if callbackFunc.OnNotFound == nil {
 		callbackFunc.OnNotFound = append(callbackFunc.OnNotFound,
-			func(ctx *models.MessageContext) models.ContextResult {
-				return models.ContextResult{
+			func(api *bot_action.BotActionAPI,
+				ctx *models.MessageContext) plugin_tree.ContextResult {
+				return plugin_tree.ContextResult{
 					IsContinue: true,
 				}
 			})
@@ -36,8 +39,9 @@ func NewRouteTrie(callbackFunc models.CallbackFunc) *RouteTrie {
 
 	if callbackFunc.AfterEach == nil {
 		callbackFunc.AfterEach = append(callbackFunc.AfterEach,
-			func(ctx *models.MessageContext) models.ContextResult {
-				return models.ContextResult{
+			func(api *bot_action.BotActionAPI,
+				ctx *models.MessageContext) plugin_tree.ContextResult {
+				return plugin_tree.ContextResult{
 					IsContinue: true,
 				}
 			})
@@ -54,7 +58,7 @@ func NewRouteTrie(callbackFunc models.CallbackFunc) *RouteTrie {
 // Insert 在路由基数树中插入路由和对应的处理函数
 // 优先级 !! > 精确匹配 > **, **只能放到最后
 // !! 代表无论什么情况都会执行的回调函数，按插入顺序先后排优先级
-func (t *RouteTrie) Insert(path string, handler models.PluginHandler) {
+func (t *RouteTrie) Insert(path string, handler plugin_tree.PluginHandler) {
 	if path == "!!" {
 		// 无论什么情况都会执行的回调函数，按插入顺序先后排优先级
 		t.callbackFunc.AfterEach = append(t.callbackFunc.AfterEach, handler)
@@ -96,7 +100,7 @@ func (t *RouteTrie) Insert(path string, handler models.PluginHandler) {
 }
 
 // Search 在路由基数树中查找路由对应的处理函数
-func (t *RouteTrie) Search(path string) []models.PluginHandler {
+func (t *RouteTrie) Search(path string) []plugin_tree.PluginHandler {
 	parts := strings.Split(path, " ")
 	node := t.root
 	params := make(map[string]string)
@@ -131,16 +135,17 @@ func (t *RouteTrie) Search(path string) []models.PluginHandler {
 		return t.callbackFunc.OnNotFound
 	}
 
-	return []models.PluginHandler{
-		func(ctx *models.MessageContext) models.ContextResult {
+	return []plugin_tree.PluginHandler{
+		func(api *bot_action.BotActionAPI,
+			ctx *models.MessageContext) plugin_tree.ContextResult {
 			// 代理函数
 			if ctx != nil {
 				ctx.Params = params
 			}
 
-			res := models.ContextResult{}
+			res := plugin_tree.ContextResult{}
 			for _, handler := range node.handlers {
-				if res = handler(ctx); !res.IsContinue {
+				if res = handler(api, ctx); !res.IsContinue {
 					return res
 				}
 			}
@@ -151,7 +156,7 @@ func (t *RouteTrie) Search(path string) []models.PluginHandler {
 }
 
 // SearchAndExec 在路由基数树中查找路由对应的处理函数并执行
-func (t *RouteTrie) SearchAndExec(ctx *models.MessageContext) {
+func (t *RouteTrie) SearchAndExec(api *bot_action.BotActionAPI, ctx *models.MessageContext) {
 	if ctx == nil {
 		panic("MessageContext is nil")
 		return
@@ -182,7 +187,7 @@ func (t *RouteTrie) SearchAndExec(ctx *models.MessageContext) {
 		} else {
 			//不是参数节点，也找不到这部分对应的精确节点或通配符节点，执行所有404回调函数
 			for _, handler := range t.callbackFunc.OnNotFound {
-				handler(ctx)
+				handler(api, ctx)
 			}
 			return
 		}
@@ -190,7 +195,7 @@ func (t *RouteTrie) SearchAndExec(ctx *models.MessageContext) {
 
 	if node.handlers == nil {
 		for _, handler := range t.callbackFunc.OnNotFound {
-			handler(ctx)
+			handler(api, ctx)
 		}
 		return
 	}
@@ -198,14 +203,14 @@ func (t *RouteTrie) SearchAndExec(ctx *models.MessageContext) {
 	ctx.Params = params
 	for _, handler := range node.handlers {
 		// 终止
-		if !handler(ctx).IsContinue {
+		if !handler(api, ctx).IsContinue {
 			break
 		}
 	}
 
 	// 执行所有AfterEach回调函数
 	for _, handler := range t.callbackFunc.AfterEach {
-		if !handler(ctx).IsContinue {
+		if !handler(api, ctx).IsContinue {
 			break
 		}
 	}

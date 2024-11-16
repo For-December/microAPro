@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"microAPro/constant/define"
 	"microAPro/models"
-	"microAPro/provider/bot_action"
+	"microAPro/models/plugin_tree"
 	"microAPro/utils/logger"
 	"net"
 	"strings"
@@ -18,19 +18,19 @@ func (v *VoiceReply) GetPluginInfo() string {
 
 func (v *VoiceReply) ContextFilter(
 	ctx *models.MessageContext,
-) models.ContextFilterResult {
+) plugin_tree.ContextFilterResult {
 	logger.Info("VoiceReply ContextFilter")
 	if ctx.MessageType != "group" || len(ctx.MessageChain.Messages) != 2 {
-		return models.ContextFilterResult{}
+		return plugin_tree.ContextFilterResult{}
 	}
 
 	if ctx.MessageChain.Messages[0].MessageType != "at" ||
 		ctx.MessageChain.Messages[0].MessageContent["qq"] != define.BotQQ {
-		return models.ContextFilterResult{}
+		return plugin_tree.ContextFilterResult{}
 	}
 
 	if ctx.MessageChain.Messages[1].MessageType != "text" {
-		return models.ContextFilterResult{}
+		return plugin_tree.ContextFilterResult{}
 	}
 
 	splits := strings.Split(
@@ -39,19 +39,19 @@ func (v *VoiceReply) ContextFilter(
 
 	if len(splits) != 2 || splits[0] != "语音" {
 		logger.Info(splits)
-		return models.ContextFilterResult{}
+		return plugin_tree.ContextFilterResult{}
 	}
 
 	text2sound(splits[1])
 
-	bot_action.BotActionAPIInstance.SendGroupMessage(
-		*((&models.MessageChain{
-			GroupId: ctx.GroupId,
-		}).Record("C:\\Users\\forDece\\PycharmProjects\\MoeGoe\\res\\1.mp3")),
-		func(messageId int) {
-		})
+	//bot_action.BotActionAPIInstance.SendGroupMessage(
+	//	*((&models.MessageChain{
+	//		GroupId: ctx.GroupId,
+	//	}).Record("C:\\Users\\forDece\\PycharmProjects\\MoeGoe\\res\\1.mp3")),
+	//	func(messageId int) {
+	//	})
 
-	return models.ContextFilterResult{
+	return plugin_tree.ContextFilterResult{
 		BreakFilter: true,
 	}
 }

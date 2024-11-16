@@ -7,19 +7,20 @@ import (
 	"time"
 )
 
-type Message[T string | int] struct {
+type Message[T string | int | int64] struct {
 	Value    T
 	ExpireAt time.Time
 }
 
-type CustomStack[T string | int] struct {
+type CustomStack[T string | int | int64] struct {
 	capacity       int
 	expireDuration time.Duration
 	stack          *list.List
 	lock           sync.Mutex
 }
 
-func NewCustomStack[T string | int](capacity int, expireDuration time.Duration) *CustomStack[T] {
+func NewCustomStack[T string | int | int64](capacity int,
+	expireDuration time.Duration) *CustomStack[T] {
 	return &CustomStack[T]{
 		capacity:       capacity,
 		expireDuration: expireDuration,

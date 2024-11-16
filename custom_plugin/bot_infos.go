@@ -5,12 +5,13 @@ import (
 	"microAPro/constant/define"
 	"microAPro/global_data"
 	"microAPro/models"
+	"microAPro/models/plugin_tree"
 	"microAPro/provider/bot_action"
 )
 
 type BotInfos struct{}
 
-var _ models.PluginInterface = &BotInfos{}
+var _ plugin_tree.PluginInterface = &BotInfos{}
 
 func (b *BotInfos) GetPluginInfo() string {
 	return "BotInfos -> bot相关信息展示\n${func | fn | f | 功能清单 | functions | 功能}"
@@ -27,20 +28,19 @@ func (b *BotInfos) GetPaths() []string {
 		prefix + "功能",
 	}
 }
-func (b *BotInfos) GetPluginHandler() models.PluginHandler {
-	return func(ctx *models.MessageContext) models.ContextResult {
+func (b *BotInfos) GetPluginHandler() plugin_tree.PluginHandler {
+	return func(api *bot_action.BotActionAPI, ctx *models.MessageContext) plugin_tree.ContextResult {
 		resStr := "功能清单：\n"
-		for i, plugin := range global_data.CustomPlugins {
+		for i, plugin := range plugin_tree.CustomPlugins {
 			resStr += fmt.Sprintf("[%d]: %s\n\n", i+1, plugin.GetPluginInfo())
 		}
 
-		bot_action.BotActionAPIInstance.SendGroupMessage(
-			*((&models.MessageChain{
-				GroupId: ctx.GroupId,
-			}).Text(resStr)),
-			func(messageId int) {
-				global_data.BotMessageIdStack.GetStack(ctx.GroupId).Push(messageId)
+		groupId := ctx.MessageChain.GetTargetId()
+		api.SendGroupMessage(
+			models.NewGroupChain(groupId).Text(resStr),
+			func(messageId int64) {
+				global_data.BotMessageIdStack.GetStack(groupId).Push(messageId)
 			})
-		return models.ContextResult{}
+		return plugin_tree.ContextResult{}
 	}
 }

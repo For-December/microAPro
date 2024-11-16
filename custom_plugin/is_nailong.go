@@ -3,6 +3,7 @@ package custom_plugin
 import (
 	"encoding/json"
 	"microAPro/models"
+	"microAPro/models/plugin_tree"
 	"microAPro/netman"
 	"microAPro/provider/bot_action"
 	"microAPro/utils/logger"
@@ -11,7 +12,7 @@ import (
 
 type NaiLongCatcher struct{}
 
-var _ models.PluginInterface = &NaiLongCatcher{}
+var _ plugin_tree.PluginInterface = &NaiLongCatcher{}
 
 func (n *NaiLongCatcher) GetPluginInfo() string {
 	return "NaiLongCatcher -> 奶龙狩猎者"
@@ -22,8 +23,8 @@ func (n *NaiLongCatcher) GetPaths() []string {
 	}
 }
 
-func (n *NaiLongCatcher) GetPluginHandler() models.PluginHandler {
-	return func(ctx *models.MessageContext) models.ContextResult {
+func (n *NaiLongCatcher) GetPluginHandler() plugin_tree.PluginHandler {
+	return func(api *bot_action.BotActionAPI, ctx *models.MessageContext) plugin_tree.ContextResult {
 		logger.Info("NaiLongCatcher")
 		go func() {
 			imageUrl := ctx.Params["image"]
@@ -39,15 +40,13 @@ func (n *NaiLongCatcher) GetPluginHandler() models.PluginHandler {
 			}
 
 			res := netman.FastPost("http://127.0.0.1:8000/long", string(marshal))
+			groupId := ctx.MessageChain.GetTargetId()
 			if string(res) == "true" {
-				bot_action.BotActionAPIInstance.SendGroupMessage(
-					*((&models.MessageChain{
-						GroupId: ctx.GroupId,
-					}).Reply(strconv.Itoa(ctx.MessageId)).Text("别发奶龙！")),
-					func(messageId int) {
-					})
+				api.SendGroupMessage(
+					models.NewGroupChain(groupId).
+						Reply(strconv.Itoa(int(ctx.MessageId))).Text("别发奶龙！"))
 			}
 		}()
-		return models.ContextResult{}
+		return plugin_tree.ContextResult{}
 	}
 }

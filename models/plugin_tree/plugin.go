@@ -1,4 +1,11 @@
-package models
+package plugin_tree
+
+import (
+	"microAPro/models"
+	"microAPro/provider/bot_action"
+)
+
+var CustomPlugins = make([]PluginInterface, 0)
 
 type ContextFilterResult struct {
 	BreakFilter bool
@@ -6,7 +13,7 @@ type ContextFilterResult struct {
 }
 
 type PluginBaseInterface interface {
-	ContextFilter(ctx *MessageContext) ContextFilterResult
+	ContextFilter(ctx *models.MessageContext) ContextFilterResult
 
 	GetPluginInfo() string
 }
@@ -18,7 +25,9 @@ type ContextResult struct {
 	Error      error
 }
 
-type PluginHandler func(ctx *MessageContext) ContextResult
+type PluginHandler func(
+	api *bot_action.BotActionAPI,
+	ctx *models.MessageContext) ContextResult
 
 type CallbackFunc struct {
 	AfterEach  []PluginHandler

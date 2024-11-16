@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-var historyArrayMap = make(map[int][]MessageMeta)
+var historyArrayMap = make(map[int64][]MessageMeta)
 var mutex = new(sync.Mutex)
 
-func GetMsgMetaWithHistory(groupId int, prompt string, meta MessageMeta) []MessageMeta {
+func GetMsgMetaWithHistory(groupId int64, prompt string, meta MessageMeta) []MessageMeta {
 	mutex.Lock()
 	defer mutex.Unlock()
 

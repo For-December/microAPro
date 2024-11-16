@@ -11,3 +11,11 @@ type MessageContext struct {
 	// 内部路由使用
 	Params map[string]string
 }
+
+func (receiver *MessageContext) GetTargetId() int64 {
+	return receiver.MessageChain.GetTargetId()
+}
+
+func (receiver *MessageContext) GetFromId() int64 {
+	return receiver.MessageChain.GetFromId()
+}

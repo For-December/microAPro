@@ -6,7 +6,6 @@ import (
 	"github.com/lxzan/gws"
 	"microAPro/constant/config"
 	"microAPro/constant/define"
-	"microAPro/global_data"
 	"microAPro/utils/logger"
 	"net/http"
 	"os"
@@ -27,18 +26,18 @@ func Start(wg *sync.WaitGroup) {
 	for _, client := range clients {
 		go func(c *gws.Conn) {
 			wg.Add(1)
-			defer func() {
-				wg.Done()
-			}()
+			defer wg.Done()
 
 			c.ReadLoop()
 		}(client)
 	}
 
 	go func() {
+		wg.Add(1)
+		defer wg.Done()
 		for {
 			select {
-			case botAction := <-global_data.BotActionChannel: // bot 行为
+			case botAction := <-BotActionChannel: // bot 行为
 				client := clients[botAction.GetBotAccount()]
 
 				if marshalString, err := sonic.MarshalString(&botAction); err != nil {

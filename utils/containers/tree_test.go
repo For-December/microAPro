@@ -3,20 +3,21 @@ package containers
 import (
 	"fmt"
 	"microAPro/models"
+	"microAPro/models/plugin_tree"
 	"testing"
 )
 
-var trie = NewRouteTrie(models.CallbackFunc{
-	AfterEach: []models.PluginHandler{
-		func(ctx *models.MessageContext) models.ContextResult {
+var trie = NewRouteTrie(plugin_tree.CallbackFunc{
+	AfterEach: []plugin_tree.PluginHandler{
+		func(ctx *models.MessageContext) plugin_tree.ContextResult {
 			println("After each handler")
-			return models.ContextResult{}
+			return plugin_tree.ContextResult{}
 		},
 	},
-	OnNotFound: []models.PluginHandler{
-		func(ctx *models.MessageContext) models.ContextResult {
+	OnNotFound: []plugin_tree.PluginHandler{
+		func(ctx *models.MessageContext) plugin_tree.ContextResult {
 			println("Not found handler")
-			return models.ContextResult{}
+			return plugin_tree.ContextResult{}
 		},
 	},
 })
@@ -24,28 +25,28 @@ var trie = NewRouteTrie(models.CallbackFunc{
 func TestTreeBase(t *testing.T) {
 
 	// 插入路由和处理函数
-	trie.Insert("home", func(ctx *models.MessageContext) models.ContextResult {
+	trie.Insert("home", func(ctx *models.MessageContext) plugin_tree.ContextResult {
 		fmt.Println("Home page handler")
-		return models.ContextResult{}
+		return plugin_tree.ContextResult{}
 	})
 
-	trie.Insert("user profile", func(ctx *models.MessageContext) models.ContextResult {
+	trie.Insert("user profile", func(ctx *models.MessageContext) plugin_tree.ContextResult {
 		fmt.Println("User profile handler")
-		return models.ContextResult{}
+		return plugin_tree.ContextResult{}
 	})
 
-	trie.Insert("ask $qq test", func(ctx *models.MessageContext) models.ContextResult {
+	trie.Insert("ask $qq test", func(ctx *models.MessageContext) plugin_tree.ContextResult {
 		for k, v := range ctx.Params {
 			fmt.Println("参数：", k, " -> ", v)
 		}
-		return models.ContextResult{}
+		return plugin_tree.ContextResult{}
 	})
 
-	trie.Insert("$qq test", func(ctx *models.MessageContext) models.ContextResult {
+	trie.Insert("$qq test", func(ctx *models.MessageContext) plugin_tree.ContextResult {
 		for k, v := range ctx.Params {
 			fmt.Println("参数：", k, " -> ", v)
 		}
-		return models.ContextResult{}
+		return plugin_tree.ContextResult{}
 	})
 
 	// 搜索路由并执行处理函数
@@ -76,18 +77,18 @@ func TestTreeBase(t *testing.T) {
 
 func TestTreeSuper(t *testing.T) {
 
-	trie.Insert("@ $qq test", func(ctx *models.MessageContext) models.ContextResult {
+	trie.Insert("@ $qq test", func(ctx *models.MessageContext) plugin_tree.ContextResult {
 		for k, v := range ctx.Params {
 			fmt.Printf("参数：[%v]->[%v]\n", k, v)
 		}
-		return models.ContextResult{}
+		return plugin_tree.ContextResult{}
 	})
 
-	trie.Insert("& 123 test $testParam", func(ctx *models.MessageContext) models.ContextResult {
+	trie.Insert("& 123 test $testParam", func(ctx *models.MessageContext) plugin_tree.ContextResult {
 		for k, v := range ctx.Params {
 			fmt.Printf("参数：[%v]->[%v]\n", k, v)
 		}
-		return models.ContextResult{}
+		return plugin_tree.ContextResult{}
 	})
 
 	ctx1 := &models.MessageContext{

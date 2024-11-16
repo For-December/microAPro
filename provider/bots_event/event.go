@@ -11,16 +11,15 @@ import (
 )
 
 func Start(wg *sync.WaitGroup) {
+
 	initClients()
 	registerCustomPlugins()
-	runDispatcher()
+	runDispatcher(wg)
 
 	for _, client := range clients {
 		go func(c *gws.Conn) {
 			wg.Add(1)
-			defer func() {
-				wg.Done()
-			}()
+			defer wg.Done()
 
 			c.ReadLoop()
 		}(client)
@@ -43,6 +42,7 @@ func initClients() {
 	}
 
 	for i := 0; i < size; i++ {
+		println(define.BotEventAddr(config.EnvCfg.BotEndpoints[i]))
 		client, _, err := gws.NewClient(&handler{
 			config.EnvCfg.BotAccounts[i],
 		}, &gws.ClientOption{

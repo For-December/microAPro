@@ -3,7 +3,6 @@ package bot_action
 import (
 	"fmt"
 	"github.com/bytedance/sonic"
-	"microAPro/global_data"
 	"microAPro/models"
 	"microAPro/utils/logger"
 	"time"
@@ -24,8 +23,8 @@ func (receiver *BotActionAPI) GetBotAccount() int64 {
 }
 
 func (receiver *BotActionAPI) SendGroupMessage(
-	chain models.MessageChain,
-	callback ...func(messageId int)) {
+	chain *models.MessageChain,
+	callback ...func(messageId int64)) {
 
 	type TParam struct {
 		GroupId    int64                    `json:"group_id"`
@@ -46,7 +45,7 @@ func (receiver *BotActionAPI) SendGroupMessage(
 		echoMsg)
 
 	// 发送消息
-	global_data.BotActionChannel <- botAction
+	BotActionChannel <- botAction
 
 	// 如果设置了回调则处理结果
 	if len(callback) > 0 {
@@ -56,7 +55,7 @@ func (receiver *BotActionAPI) SendGroupMessage(
 }
 func (receiver *BotActionAPI) solveSentRes(
 	echoMsg string,
-	callback []func(messageId int)) {
+	callback []func(messageId int64)) {
 	// 发完消息后处理结果
 	go func() {
 		for {
@@ -89,14 +88,14 @@ func (receiver *BotActionAPI) solveSentRes(
 	}()
 }
 
-func (receiver *BotActionAPI) RecallMessage(messageId int) {
+func (receiver *BotActionAPI) RecallMessage(messageId int64) {
 
 	echoMsg := fmt.Sprintf("recall_%d", messageId)
 
-	global_data.BotActionChannel <- NewBotAction(
+	BotActionChannel <- NewBotAction(
 		receiver.botAccount,
 		"delete_msg",
-		map[string]int{
+		map[string]int64{
 			"message_id": messageId,
 		},
 		echoMsg)

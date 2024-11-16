@@ -31,7 +31,7 @@ type BotActionResult struct {
 	Status  string `json:"status"`
 	Retcode int    `json:"retcode"`
 	Data    struct {
-		MessageId int `json:"message_id"`
+		MessageId int64 `json:"message_id"`
 	} `json:"data"`
 	Echo string `json:"echo"`
 }

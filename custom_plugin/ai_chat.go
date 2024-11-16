@@ -6,11 +6,12 @@ import (
 	"microAPro/custom_plugin/ai"
 	"microAPro/global_data"
 	"microAPro/models"
+	"microAPro/models/plugin_tree"
 	"microAPro/provider/bot_action"
 	"microAPro/utils/logger"
 )
 
-var _ models.PluginInterface = &AIChat{}
+var _ plugin_tree.PluginInterface = &AIChat{}
 
 type AIChat struct{}
 
@@ -26,8 +27,12 @@ func (a *AIChat) GetPaths() []string {
 
 var DevMode = false
 
-func (a *AIChat) GetPluginHandler() models.PluginHandler {
-	return func(ctx *models.MessageContext) models.ContextResult {
+func (a *AIChat) GetPluginHandler() plugin_tree.PluginHandler {
+	return func(api *bot_action.BotActionAPI, ctx *models.MessageContext) plugin_tree.ContextResult {
+
+		groupId := ctx.MessageChain.GetTargetId()
+		userId := ctx.MessageChain.GetFromId()
+
 		questionStr := ctx.Params["**"]
 
 		//logger.InfoF("[%d] -> %s", ctx.GroupId, questionStr)
@@ -54,19 +59,18 @@ func (a *AIChat) GetPluginHandler() models.PluginHandler {
 			DevMode = false
 			answerStr = "AI开发者模式已关闭"
 		} else {
-			answerStr = ai.ChatMsgWithHistory(ctx.GroupId, questionStr, prompt)
+			answerStr = ai.ChatMsgWithHistory(groupId, questionStr, prompt)
 		}
 
-		bot_action.BotActionAPIInstance.SendGroupMessage(
-			*(&models.MessageChain{
-				GroupId: ctx.GroupId,
-			}).At(utils.ToString(ctx.UserId)).Text(" ").Text(answerStr),
-			func(messageId int) {
+		api.SendGroupMessage(
+			models.NewGroupChain(groupId).
+				At(utils.ToString(userId)).Text(" ").Text(answerStr),
+			func(messageId int64) {
 				// 将messageId保存
-				global_data.BotMessageIdStack.GetStack(ctx.GroupId).Push(messageId)
+				global_data.BotMessageIdStack.GetStack(groupId).Push(messageId)
 				println("id---------------> ", messageId)
 			})
 
-		return models.ContextResult{}
+		return plugin_tree.ContextResult{}
 	}
 }

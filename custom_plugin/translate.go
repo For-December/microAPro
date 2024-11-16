@@ -6,13 +6,14 @@ import (
 	"microAPro/custom_plugin/translate"
 	"microAPro/global_data"
 	"microAPro/models"
+	"microAPro/models/plugin_tree"
 	"microAPro/provider/bot_action"
 )
 
 type Translate struct {
 }
 
-var _ models.PluginInterface = &Translate{}
+var _ plugin_tree.PluginInterface = &Translate{}
 
 func (t *Translate) GetPluginInfo() string {
 	return "Translate -> 翻译到指定语言\n${translateTo|tr2 [zh|en|jp] [文本]}"
@@ -33,8 +34,8 @@ func (t *Translate) GetPaths() []string {
 	return res
 }
 
-func (t *Translate) GetPluginHandler() models.PluginHandler {
-	return func(ctx *models.MessageContext) models.ContextResult {
+func (t *Translate) GetPluginHandler() plugin_tree.PluginHandler {
+	return func(api *bot_action.BotActionAPI, ctx *models.MessageContext) plugin_tree.ContextResult {
 		// 从消息链中提取文本消息
 		lang := ctx.Params["lang"]
 		text := ctx.Params["**"]
@@ -52,16 +53,14 @@ func (t *Translate) GetPluginHandler() models.PluginHandler {
 			toLangFunc = translate.ToZh
 		}
 
-		bot_action.BotActionAPIInstance.SendGroupMessage(
-			*(&models.MessageChain{
-				GroupId: ctx.GroupId,
-			}).
-				At(utils.ToString(ctx.UserId)).
+		api.SendGroupMessage(
+			models.NewGroupChain(ctx.GetTargetId()).
+				At(utils.ToString(ctx.GetFromId())).
 				Text(" ").Text(toLangFunc(text)),
-			func(messageId int) {
+			func(messageId int64) {
 				// 将messageId保存
-				global_data.BotMessageIdStack.GetStack(ctx.GroupId).Push(messageId)
+				global_data.BotMessageIdStack.GetStack(ctx.GetTargetId()).Push(messageId)
 			})
-		return models.ContextResult{}
+		return plugin_tree.ContextResult{}
 	}
 }
