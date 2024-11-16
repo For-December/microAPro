@@ -13,10 +13,11 @@ var EnvCfg = struct {
 	BaiDuAppId     string `env:"BAI_DU_APP_ID"`
 	BaiDuSecretKey string `env:"BAI_DU_SECRET_KEY"`
 	BaiDuSalt      string `env:"BAI_DU_SALT"`
-	BotAccounts    []int  `env:"BOT_ACCOUNTS"`
-	AdminAccounts  []int  `env:"ADMIN_ACCOUNTS"`
 
-	BotEndpoints string `env:"BOT_ENDPOINTS"`
+	AdminAccounts []int64 `env:"ADMIN_ACCOUNTS"`
+
+	BotAccounts  []int64  `env:"BOT_ACCOUNTS"`
+	BotEndpoints []string `env:"BOT_ENDPOINTS"`
 }{}
 
 func init() {

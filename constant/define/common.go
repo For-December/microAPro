@@ -6,8 +6,15 @@ const providerBaseUrl = "ws://localhost:8081"
 
 const suffix = "/onebot/v11/ws"
 
-const BotActionAddr = providerBaseUrl + suffix + "/api"
-const BotEventAddr = providerBaseUrl + suffix + "/event"
+// BotActionAddr = providerBaseUrl + suffix + "/api"
+func BotActionAddr(endpoint string) string {
+	return endpoint + suffix + "/api"
+}
+
+// BotEventAddr = providerBaseUrl + suffix + "/event"
+func BotEventAddr(endpoint string) string {
+	return endpoint + suffix + "/event"
+}
 
 const BotQQ = "3090807650"
 

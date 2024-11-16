@@ -6,7 +6,7 @@ import (
 )
 
 type handler struct {
-	BotAccount int
+	BotAccount int64
 }
 
 func (c *handler) OnOpen(socket *gws.Conn) {

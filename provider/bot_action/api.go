@@ -9,35 +9,55 @@ import (
 	"time"
 )
 
-var BotActionAPIInstance = &botActionAPI{}
+//var BotActionAPIInstance = &botActionAPI{}
 
-type botActionAPI struct {
+type BotActionAPI struct {
+	botAccount int64
 }
 
-func (receiver *botActionAPI) SendGroupMessage(chain models.MessageChain, callback ...func(messageId int)) {
+func NewBotActionAPI(botAccount int64) *BotActionAPI {
+	return &BotActionAPI{botAccount: botAccount}
+}
+
+func (receiver *BotActionAPI) GetBotAccount() int64 {
+	return receiver.botAccount
+}
+
+func (receiver *BotActionAPI) SendGroupMessage(
+	chain models.MessageChain,
+	callback ...func(messageId int)) {
 
 	type TParam struct {
-		GroupId    int                      `json:"group_id"`
+		GroupId    int64                    `json:"group_id"`
 		Message    []models.JsonTypeMessage `json:"message"`
 		AutoEscape bool                     `json:"auto_escape"`
 	}
 
-	// 微秒时间戳
-	echoMsg := fmt.Sprintf("group_message_%d", time.Now().UnixMicro())
-	marshalString, err := sonic.MarshalString(&BotAction{
-		Action: "send_group_msg",
-		Params: TParam{
-			GroupId:    chain.GroupId,
+	// 微秒时间戳，带上bot标识，理论上不会重复
+	echoMsg := fmt.Sprintf("group_message_%d_%d", receiver.botAccount, time.Now().UnixMicro())
+	botAction := NewBotAction(
+		receiver.GetBotAccount(),
+		"send_group_msg",
+		TParam{
+			GroupId:    chain.GetTargetId(),
 			Message:    chain.ToJsonTypeMessage(),
 			AutoEscape: false,
 		},
-		Echo: echoMsg,
-	})
-	if err != nil {
-		logger.Error(err)
-		return
+		echoMsg)
+
+	// 发送消息
+	global_data.BotActionChannel <- botAction
+
+	// 如果设置了回调则处理结果
+	if len(callback) > 0 {
+		receiver.solveSentRes(echoMsg, callback)
 	}
-	global_data.BotActionChannel <- marshalString
+
+}
+func (receiver *BotActionAPI) solveSentRes(
+	echoMsg string,
+	callback []func(messageId int)) {
+	// 发完消息后处理结果
 	go func() {
 		for {
 			select {
@@ -69,19 +89,15 @@ func (receiver *botActionAPI) SendGroupMessage(chain models.MessageChain, callba
 	}()
 }
 
-func (receiver *botActionAPI) RecallMessage(messageId int) {
+func (receiver *BotActionAPI) RecallMessage(messageId int) {
 
 	echoMsg := fmt.Sprintf("recall_%d", messageId)
-	marshalString, err := sonic.MarshalString(&BotAction{
-		Action: "delete_msg",
-		Params: map[string]int{
+
+	global_data.BotActionChannel <- NewBotAction(
+		receiver.botAccount,
+		"delete_msg",
+		map[string]int{
 			"message_id": messageId,
 		},
-		Echo: echoMsg,
-	})
-	if err != nil {
-		logger.Error(err)
-		return
-	}
-	global_data.BotActionChannel <- marshalString
+		echoMsg)
 }

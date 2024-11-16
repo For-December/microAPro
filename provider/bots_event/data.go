@@ -4,6 +4,6 @@ import (
 	"github.com/lxzan/gws"
 )
 
-var clients map[string]*gws.Conn
+var clients map[int64]*gws.Conn
 
-var botsEventChannels = map[int]chan []byte{}
+var botsEventChannels = map[int64]chan []byte{}

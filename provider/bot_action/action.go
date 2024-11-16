@@ -2,52 +2,86 @@ package bot_action
 
 import (
 	"fmt"
+	"github.com/bytedance/sonic"
 	"github.com/lxzan/gws"
+	"microAPro/constant/config"
 	"microAPro/constant/define"
 	"microAPro/global_data"
 	"microAPro/utils/logger"
 	"net/http"
 	"os"
+	"sync"
 )
 
-var client *gws.Conn
-var botActionResChannel = make(chan []byte, define.ChannelBufferSize)
-
 func Stop() {
-	client.WriteClose(1000, nil)
-	println("stop action")
+	for act, conn := range clients {
+		conn.WriteClose(1000, nil)
+		println("stop action: ", act)
+	}
 }
-func Start() {
-	var err error
-	client, _, err = gws.NewClient(&handler{}, &gws.ClientOption{
-		Addr: define.BotActionAddr,
-		RequestHeader: http.Header{
-			"Authorization": []string{"Bearer test-114514"},
-		},
-		ParallelEnabled: false, // 禁用并发(内置并发实现频繁创建协程，不太合适)
-	})
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+func Start(wg *sync.WaitGroup) {
+
+	initClients()
+
+	// 启动所有客户端
+	for _, client := range clients {
+		go func(c *gws.Conn) {
+			wg.Add(1)
+			defer func() {
+				wg.Done()
+			}()
+
+			c.ReadLoop()
+		}(client)
 	}
 
 	go func() {
-		type T struct {
-			GroupId    int    `json:"group_id"`
-			Message    string `json:"message"`
-			AutoEscape bool   `json:"auto_escape"`
-		}
-
 		for {
 			select {
 			case botAction := <-global_data.BotActionChannel: // bot 行为
-				if err := client.WriteString(botAction); err != nil {
+				client := clients[botAction.GetBotAccount()]
+
+				if marshalString, err := sonic.MarshalString(&botAction); err != nil {
+					logger.Error(err)
+					break
+				} else if err = client.WriteString(marshalString); err != nil {
 					logger.Error(err)
 					break
 				}
+				//case <-botActionResChannel: // bot 行为结果
+				// 其他地方接收
 			}
 		}
+
 	}()
 
-	client.ReadLoop()
+}
+
+func initClients() {
+
+	size := len(config.EnvCfg.BotAccounts)
+	if len(config.EnvCfg.BotEndpoints) != size {
+		panic("BotAccounts cannot match BotEndpoints!")
+	}
+
+	for i := 0; i < size; i++ {
+		client, _, err := gws.NewClient(&handler{
+			config.EnvCfg.BotAccounts[i],
+		}, &gws.ClientOption{
+			Addr: define.BotActionAddr(config.EnvCfg.BotEndpoints[i]),
+			RequestHeader: http.Header{
+				"Authorization": []string{"Bearer test-114514"},
+			},
+			ParallelEnabled: false, // 禁用并发(内置并发实现频繁创建协程，不太合适)
+		})
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		if _, ok := clients[config.EnvCfg.BotAccounts[i]]; ok {
+			panic("duplicated accounts!")
+		}
+		clients[config.EnvCfg.BotAccounts[i]] = client
+	}
+
 }

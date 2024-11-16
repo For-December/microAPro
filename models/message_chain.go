@@ -4,31 +4,30 @@ import (
 	"microAPro/models/entity"
 )
 
-type MessageChainBuilder int
-
-func (targetId MessageChainBuilder) NewGroupChain() *MessageChain {
+func NewGroupChain(targetId int64) *MessageChain {
 	return &MessageChain{
 		Messages: []entity.CommonMessage{},
 		fromId:   0,
-		targetId: int(targetId),
+		targetId: targetId,
 	}
 }
 
-func (targetId MessageChainBuilder) NewPrivateChain() *MessageChain {
+func NewPrivateChain(targetId int64) *MessageChain {
 	return &MessageChain{
 		Messages: []entity.CommonMessage{},
 		fromId:   0,
-		targetId: int(targetId),
+		targetId: targetId,
 	}
 }
 
 // NewReceivedChain 用于构建接收到的消息链
 // fromId 为发送者的QQ号
-func (targetId MessageChainBuilder) NewReceivedChain(fromId int) *MessageChain {
+// targetId 为接收者的QQ号
+func NewReceivedChain(fromId int64, targetId int64) *MessageChain {
 	return &MessageChain{
 		Messages: []entity.CommonMessage{},
 		fromId:   fromId,
-		targetId: int(targetId),
+		targetId: targetId,
 	}
 }
 
@@ -39,8 +38,8 @@ type MessageChain struct {
 	//FromId   int `json:"from_id"`   // 消息来源
 	//TargetId int `json:"target_id"` // 消息去路
 
-	fromId   int // 消息来源
-	targetId int // 消息去路
+	fromId   int64 // 消息来源
+	targetId int64 // 消息去路
 }
 
 type JsonTypeMessage struct {
@@ -48,11 +47,11 @@ type JsonTypeMessage struct {
 	Data map[string]interface{} `json:"data"`
 }
 
-func (receiver *MessageChain) GetFromId() int {
+func (receiver *MessageChain) GetFromId() int64 {
 	return receiver.fromId
 }
 
-func (receiver *MessageChain) GetTargetId() int {
+func (receiver *MessageChain) GetTargetId() int64 {
 	return receiver.targetId
 }
 

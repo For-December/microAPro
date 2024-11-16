@@ -5,7 +5,9 @@ import (
 	"github.com/lxzan/gws"
 )
 
-type handler struct{}
+type handler struct {
+	BotAccount int64
+}
 
 func (c *handler) OnOpen(socket *gws.Conn) {
 	//_ = socket.SetDeadline(time.Now().Add(PingInterval + PingWait))

@@ -1,9 +1,30 @@
 package bot_action
 
-type BotAction struct {
-	Action string      `json:"action"`
-	Params interface{} `json:"params"`
-	Echo   string      `json:"echo"`
+// BotAction 通过接口避免直接创建对象
+type BotAction interface {
+	GetBotAccount() int64
+}
+type botActionImpl struct {
+	BotAccount int64
+	Action     string      `json:"action"`
+	Params     interface{} `json:"params"`
+	Echo       string      `json:"echo"`
+}
+
+func (b botActionImpl) GetBotAccount() int64 {
+	return b.BotAccount
+}
+
+func NewBotAction(botAccount int64,
+	action string,
+	params interface{}, echo string) BotAction {
+	return botActionImpl{
+		BotAccount: botAccount,
+		Action:     action,
+		Params:     params,
+		Echo:       echo,
+	}
+
 }
 
 type BotActionResult struct {
