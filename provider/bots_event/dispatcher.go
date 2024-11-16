@@ -27,7 +27,7 @@ func registerCustomPlugins() {
 	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.GroupLogs{})
 	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.Echo{})
 	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.Translate{})
-	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.NaiLongCatcher{})
+	//plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.NaiLongCatcher{})
 	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.ColorPic{})
 
 	// 树形路由匹配注册
