@@ -3,7 +3,7 @@ package main
 import (
 	"microAPro/dbmodels"
 	"microAPro/provider/bot_action"
-	"microAPro/provider/bot_event"
+	"microAPro/provider/bots_event"
 	"microAPro/storage/database"
 	"microAPro/utils/logger"
 
@@ -19,7 +19,7 @@ func main() {
 	}
 	//return
 	go func() {
-		bot_event.Start()
+		bots_event.Start()
 
 	}()
 	bot_action.Start()
@@ -34,7 +34,7 @@ func init() {
 	go func() {
 		select {
 		case <-interrupt:
-			bot_event.Stop()
+			bots_event.Stop()
 			bot_action.Stop()
 			println("interrupt")
 		}

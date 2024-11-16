@@ -4,17 +4,56 @@ import (
 	"microAPro/models/entity"
 )
 
+type MessageChainBuilder int
+
+func (targetId MessageChainBuilder) NewGroupChain() *MessageChain {
+	return &MessageChain{
+		Messages: []entity.CommonMessage{},
+		fromId:   0,
+		targetId: int(targetId),
+	}
+}
+
+func (targetId MessageChainBuilder) NewPrivateChain() *MessageChain {
+	return &MessageChain{
+		Messages: []entity.CommonMessage{},
+		fromId:   0,
+		targetId: int(targetId),
+	}
+}
+
+// NewReceivedChain 用于构建接收到的消息链
+// fromId 为发送者的QQ号
+func (targetId MessageChainBuilder) NewReceivedChain(fromId int) *MessageChain {
+	return &MessageChain{
+		Messages: []entity.CommonMessage{},
+		fromId:   fromId,
+		targetId: int(targetId),
+	}
+}
+
 type MessageChain struct {
 	Messages []entity.CommonMessage `json:"messages"`
-	UserId   int                    `json:"user_id"`
-	GroupId  int                    `json:"group_id"`
-	FromId   int                    `json:"from_id"`
-	TargetId int                    `json:"target_id"`
+	//UserId   int                    `json:"user_id"`
+	//GroupId  int                    `json:"group_id"`
+	//FromId   int `json:"from_id"`   // 消息来源
+	//TargetId int `json:"target_id"` // 消息去路
+
+	fromId   int // 消息来源
+	targetId int // 消息去路
 }
 
 type JsonTypeMessage struct {
 	Type string                 `json:"type"`
 	Data map[string]interface{} `json:"data"`
+}
+
+func (receiver *MessageChain) GetFromId() int {
+	return receiver.fromId
+}
+
+func (receiver *MessageChain) GetTargetId() int {
+	return receiver.targetId
 }
 
 func (receiver *MessageChain) ToPath() string {

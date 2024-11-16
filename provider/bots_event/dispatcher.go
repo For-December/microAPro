@@ -1,4 +1,4 @@
-package bot_event
+package bots_event
 
 import (
 	"github.com/bytedance/sonic"
@@ -10,7 +10,9 @@ import (
 	"microAPro/utils/logger"
 )
 
-var botEventChannel = make(chan []byte, define.ChannelBufferSize)
+func init() {
+
+}
 
 var trie *containers.RouteTrie
 
@@ -56,8 +58,45 @@ func executePlugins(ctx *models.MessageContext) {
 	trie.SearchAndExec(ctx)
 }
 
+func processMsg(msg message, msgType string, targetId, fromId int) {
+	messageChain := &models.MessageChain{
+		fromId:   groupMessage.UserId,
+		TargetId: groupMessage.GroupId,
+	}
+	models.MessageChainBuilder.NewReceivedChain()
+	for _, s := range gpMessage {
+
+		switch s.Type {
+		case "text":
+			messageChain.Text(s.Data["text"].(string))
+		case "image":
+			messageChain.Image(s.Data["file"].(string))
+		case "record":
+			messageChain.Record(s.Data["file"].(string))
+		case "at":
+			messageChain.At(s.Data["qq"].(string))
+		case "reply":
+			messageChain.Reply(s.Data["id"].(string))
+		case "face":
+			messageChain.Face(s.Data["id"].(string))
+
+		default:
+			logger.Warning("no such message type: ", s.Type)
+			continue
+		}
+	}
+
+	executePlugins(&models.MessageContext{
+		BotAccount:   define.BotQQ,
+		MessageType:  msgType,
+		MessageId:    groupMessage.MessageId,
+		GroupId:      groupMessage.GroupId,
+		UserId:       groupMessage.UserId,
+		MessageChain: messageChain,
+	})
+}
 func dispatcher(msg []byte) {
-	event := BotEvent{}
+	event := botEvent{}
 	err := sonic.Unmarshal(msg, &event)
 	if err != nil {
 		logger.Error("解析事件json失败: ", string(msg), err)
@@ -71,7 +110,7 @@ func dispatcher(msg []byte) {
 
 		// 群组消息
 		case "group":
-			groupMessage := GroupMessageEvent{}
+			groupMessage := groupMessageEvent{}
 			if err := sonic.Unmarshal(msg, &groupMessage); err != nil {
 				logger.Error("groupMessage err: ", string(msg), err)
 				return
@@ -79,41 +118,15 @@ func dispatcher(msg []byte) {
 			//logger.Info(string(msg))
 
 			// 消息链
-			messageChain := &models.MessageChain{
-				FromId:   groupMessage.UserId,
-				TargetId: groupMessage.GroupId,
+
+			gpMessage := groupMessage.Message
+
+		case "private":
+			privateMessage := privateMessageEvent{}
+			if err := sonic.Unmarshal(msg, &privateMessage); err != nil {
+				logger.Error("groupMessage err: ", string(msg), err)
+				return
 			}
-
-			for _, s := range groupMessage.Message {
-
-				switch s.Type {
-				case "text":
-					messageChain.Text(s.Data["text"].(string))
-				case "image":
-					messageChain.Image(s.Data["file"].(string))
-				case "record":
-					messageChain.Record(s.Data["file"].(string))
-				case "at":
-					messageChain.At(s.Data["qq"].(string))
-				case "reply":
-					messageChain.Reply(s.Data["id"].(string))
-				case "face":
-					messageChain.Face(s.Data["id"].(string))
-
-				default:
-					logger.Warning("no such message type: ", s.Type)
-					continue
-				}
-			}
-
-			executePlugins(&models.MessageContext{
-				BotAccount:   define.BotQQ,
-				MessageType:  "group",
-				MessageId:    groupMessage.MessageId,
-				GroupId:      groupMessage.GroupId,
-				UserId:       groupMessage.UserId,
-				MessageChain: messageChain,
-			})
 
 		default:
 			logger.Warning("unknown message type: ", event.MessageType)

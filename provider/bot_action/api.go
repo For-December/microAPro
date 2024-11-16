@@ -14,7 +14,7 @@ var BotActionAPIInstance = &botActionAPI{}
 type botActionAPI struct {
 }
 
-func (receiver *botActionAPI) SendGroupMessage(chain models.MessageChain, callback func(messageId int)) {
+func (receiver *botActionAPI) SendGroupMessage(chain models.MessageChain, callback ...func(messageId int)) {
 
 	type TParam struct {
 		GroupId    int                      `json:"group_id"`
@@ -22,7 +22,8 @@ func (receiver *botActionAPI) SendGroupMessage(chain models.MessageChain, callba
 		AutoEscape bool                     `json:"auto_escape"`
 	}
 
-	echoMsg := fmt.Sprintf("group_message_%d", time.Now().Unix())
+	// 微秒时间戳
+	echoMsg := fmt.Sprintf("group_message_%d", time.Now().UnixMicro())
 	marshalString, err := sonic.MarshalString(&BotAction{
 		Action: "send_group_msg",
 		Params: TParam{
@@ -50,9 +51,11 @@ func (receiver *botActionAPI) SendGroupMessage(chain models.MessageChain, callba
 
 				if event.Echo == echoMsg {
 
-					// 执行回调，结束携程
+					// 执行回调，结束协程
 					logger.Info(event.Data)
-					callback(event.Data.MessageId)
+					for _, f := range callback {
+						f(event.Data.MessageId)
+					}
 
 					return
 				}
