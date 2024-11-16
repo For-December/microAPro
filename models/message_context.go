@@ -1,9 +1,11 @@
 package models
 
+import "microAPro/constant/define"
+
 type MessageContext struct {
-	BotAccount  int64  `json:"bot_account"`
-	MessageType string `json:"message_type"`
-	MessageId   int64  `json:"message_id"`
+	BotAccount  int64              `json:"bot_account"`
+	MessageType define.MessageType `json:"message_type"`
+	MessageId   int64              `json:"message_id"`
 	//GroupId      int           `json:"group_id"`
 	//UserId       int           `json:"user_id"`
 	MessageChain *MessageChain `json:"message_chain"`

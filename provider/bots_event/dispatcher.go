@@ -16,7 +16,8 @@ func init() {
 
 }
 
-var trie *containers.RouteTrie
+var groupTrie *containers.RouteTrie
+var privateTrie *containers.RouteTrie
 
 // 注册插件，将处理函数放到基数树中
 func registerCustomPlugins() {
@@ -31,13 +32,19 @@ func registerCustomPlugins() {
 	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.ColorPic{})
 
 	// 树形路由匹配注册
-	trie = containers.NewRouteTrie(plugin_tree.CallbackFunc{})
+	groupTrie = containers.NewRouteTrie(plugin_tree.CallbackFunc{})
+	privateTrie = containers.NewRouteTrie(plugin_tree.CallbackFunc{})
 
 	for _, plugin := range plugin_tree.CustomPlugins {
 		paths := plugin.GetPaths()
 		for _, path := range paths {
 			// 优先级 !! > 精确匹配 > **
-			trie.Insert(path, plugin.GetPluginHandler())
+			if plugin.GetScope()&define.GroupScope != 0 {
+				groupTrie.Insert(path, plugin.GetPluginHandler())
+			}
+			if plugin.GetScope()&define.PrivateScope != 0 {
+				privateTrie.Insert(path, plugin.GetPluginHandler())
+			}
 		}
 
 	}
@@ -63,9 +70,18 @@ func runDispatcher(wg *sync.WaitGroup) {
 }
 
 func executePlugins(api *bot_action.BotActionAPI, ctx *models.MessageContext) {
-
 	// 改成树形路由匹配
-	trie.SearchAndExec(api, ctx)
+
+	switch ctx.MessageType {
+	case define.GroupMsg:
+		groupTrie.SearchAndExec(api, ctx)
+	case define.PrivateMsg:
+		privateTrie.SearchAndExec(api, ctx)
+	case define.TempMsg:
+	default:
+		logger.Warning("unknown message type: ", ctx.MessageType)
+
+	}
 }
 
 func processMsg(msg []message,
