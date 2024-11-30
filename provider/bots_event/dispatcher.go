@@ -13,11 +13,15 @@ import (
 	"microAPro/utils/containers"
 	"microAPro/utils/logger"
 	"sync"
+	"sync/atomic"
 )
 
 func init() {
 
 }
+
+// FilterCallbackChan 存过滤其的回调函数，三分钟有效期
+var hasCallback = atomic.Bool{}
 
 var groupTrie *containers.RouteTrie
 var privateTrie *containers.RouteTrie
@@ -63,7 +67,7 @@ func runDispatcher(wg *sync.WaitGroup) {
 			defer wg.Done()
 			for {
 				select {
-				case msg := <-ch:
+				case msg := <-ch: // 不同的bot用不同的协程
 					// msg有个self id字段，因此可以不必传botAccount
 					dispatcher(msg)
 				}
@@ -79,6 +83,8 @@ func runDispatcher(wg *sync.WaitGroup) {
 			defer wg.Done()
 			for {
 				ctx := global_data.GetNextContext(group)
+
+				// 这里可以决定哪个群的消息由哪个bot处理
 				executePlugins(bot_action.NewBotActionAPI(3090807650), ctx)
 			}
 		}(grp)
@@ -86,6 +92,7 @@ func runDispatcher(wg *sync.WaitGroup) {
 
 }
 
+// 这里是同一个群的消息
 func executePlugins(api *bot_action.BotActionAPI, ctx *models.MessageContext) {
 	//
 
@@ -95,6 +102,8 @@ func executePlugins(api *bot_action.BotActionAPI, ctx *models.MessageContext) {
 	case define.GroupMsg:
 		groupTrie.SearchAndExec(api, ctx)
 	case define.PrivateMsg:
+		// 如果符合过滤器条件，执行过滤器，否则执行函数
+
 		privateTrie.SearchAndExec(api, ctx)
 	case define.TempMsg:
 	default:
@@ -145,6 +154,7 @@ func processMsg(msg []message,
 
 }
 
+// 这里收到的事件是同一个Bot的
 func dispatcher(msg []byte) {
 	event := botEvent{}
 	err := sonic.Unmarshal(msg, &event)

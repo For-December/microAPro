@@ -5,14 +5,14 @@ import (
 	"time"
 )
 
-type StackGroup[T string | int | int64] struct {
+type StackGroup[T string | int | int64 | interface{}] struct {
 	stacks         map[int64]*CustomStack[T]
 	capacity       int
 	expireDuration time.Duration
 	lock           sync.Mutex
 }
 
-func NewStackGroup[T string | int | int64](
+func NewStackGroup[T string | int | int64 | interface{}](
 	capacity int,
 	expireDuration time.Duration,
 ) *StackGroup[T] {

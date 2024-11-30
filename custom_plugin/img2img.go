@@ -7,6 +7,7 @@ import (
 	"microAPro/models"
 	"microAPro/models/plugin_tree"
 	"microAPro/provider/bot_action"
+	"microAPro/utils/logger"
 )
 
 type Img2Img struct{}
@@ -25,7 +26,7 @@ func (i *Img2Img) GetPaths() []string {
 
 func (i *Img2Img) GetPluginInfo() string {
 
-	return "Img2Img -> 根据图片生成图片\n${ii | i2i | img2img | 生图}"
+	return "Img2Img -> 根据图片生成图片\n$@小A {ii | i2i | img2img | 生图}"
 }
 
 func (i *Img2Img) GetPluginHandler() plugin_tree.PluginHandler {
@@ -39,8 +40,12 @@ func (i *Img2Img) GetPluginHandler() plugin_tree.PluginHandler {
 				global_data.BotMessageIdStack.GetStack(groupId).Push(messageId)
 			})
 
+		logger.Info("??")
+
 		// 获取该群下一个上下文
 		content := global_data.GetNextContext(groupId)
+		logger.Info(content)
+
 		for _, message := range content.MessageChain.Messages {
 			if message.MessageType == "image" {
 				img.BDImg2ImgInChannel <- message.MessageContent["file"].(string)

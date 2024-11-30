@@ -79,6 +79,7 @@ func init() {
 		}
 	}()
 }
+
 func convertImg2Img(inputUrl string) string {
 	visual.DefaultInstance.Client.SetAccessKey(config.EnvCfg.DouBaoAccessKey)
 	visual.DefaultInstance.Client.SetSecretKey(config.EnvCfg.DouBaoSecretKey)
@@ -96,12 +97,12 @@ func convertImg2Img(inputUrl string) string {
 			"add_logo":          true,
 			"position":          0,
 			"language":          0,
-			"logo_text_content": "这里是明水印内容",
+			"logo_text_content": "Created by 小A",
 		},
 	}
 
 	resp, status, err := visual.DefaultInstance.CVProcess(reqBody)
-	fmt.Println(status, err)
+	fmt.Println(status, resp, err)
 	b, _ := json.Marshal(resp)
 
 	res := resType{}
