@@ -27,7 +27,7 @@ func (c *handler) OnPong(socket *gws.Conn, payload []byte) {
 }
 
 func (c *handler) OnMessage(socket *gws.Conn, message *gws.Message) {
-	println(string(message.Bytes()))
+	//println(string(message.Bytes()))
 	// 收到的消息放入 botEventChannel，由 dispatcher 处理
 	// channel 使用缓冲区，使得能够连续接收消息而不阻塞
 	botsEventChannels[c.BotAccount] <- message.Bytes()

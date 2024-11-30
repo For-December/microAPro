@@ -2,11 +2,14 @@ package bots_event
 
 import (
 	"github.com/bytedance/sonic"
+	"microAPro/constant/config"
 	"microAPro/constant/define"
 	"microAPro/custom_plugin"
+	"microAPro/global_data"
 	"microAPro/models"
 	"microAPro/models/plugin_tree"
 	"microAPro/provider/bot_action"
+	"microAPro/utils/calc"
 	"microAPro/utils/containers"
 	"microAPro/utils/logger"
 	"sync"
@@ -30,6 +33,7 @@ func registerCustomPlugins() {
 	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.Translate{})
 	//plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.NaiLongCatcher{})
 	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.ColorPic{})
+	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.Img2Img{})
 
 	// 树形路由匹配注册
 	groupTrie = containers.NewRouteTrie(plugin_tree.CallbackFunc{})
@@ -51,7 +55,7 @@ func registerCustomPlugins() {
 }
 
 func runDispatcher(wg *sync.WaitGroup) {
-	// 多个调度器处理对应channel数据
+	// 多个调度器处理对应channel数据，每个bot一个channel
 	for _, channel := range botsEventChannels {
 		// 通道传参，实际上是指针传递，因为通道本事是指针
 		go func(ch chan []byte) {
@@ -65,11 +69,26 @@ func runDispatcher(wg *sync.WaitGroup) {
 				}
 			}
 		}(channel)
+
+	}
+
+	// 群聊消息的channel，bots作为集群，每个群聊一个channel
+	for _, grp := range config.EnvCfg.GroupWhitelist {
+		go func(group int64) {
+			wg.Add(1)
+			defer wg.Done()
+			for {
+				ctx := global_data.GetNextContext(group)
+				executePlugins(bot_action.NewBotActionAPI(3090807650), ctx)
+			}
+		}(grp)
 	}
 
 }
 
 func executePlugins(api *bot_action.BotActionAPI, ctx *models.MessageContext) {
+	//
+
 	// 改成树形路由匹配
 
 	switch ctx.MessageType {
@@ -113,15 +132,19 @@ func processMsg(msg []message,
 		}
 	}
 
-	executePlugins(bot_action.NewBotActionAPI(botAccount),
-		&models.MessageContext{
-			BotAccount:   botAccount,
-			MessageType:  msgType,
-			MessageId:    messageId,
-			MessageChain: messageChain,
-		})
+	if _, ok := global_data.GroupChannels[targetId]; !ok {
+		panic("group channel not found!")
+	}
+
+	global_data.GroupChannels[targetId] <- &models.MessageContext{
+		BotAccount:   botAccount,
+		MessageType:  msgType,
+		MessageId:    messageId,
+		MessageChain: messageChain,
+	}
 
 }
+
 func dispatcher(msg []byte) {
 	event := botEvent{}
 	err := sonic.Unmarshal(msg, &event)
@@ -142,7 +165,14 @@ func dispatcher(msg []byte) {
 				logger.Error("groupMessage err: ", string(msg), err)
 				return
 			}
-			logger.Info("群消息")
+
+			if !calc.IsTargetInArray(groupMessage.GroupId,
+				config.EnvCfg.GroupWhitelist) {
+				// 该群不在白名单中
+				return
+			}
+
+			logger.Info("群消息👇")
 
 			// 消息链
 			processMsg(
@@ -177,7 +207,7 @@ func dispatcher(msg []byte) {
 				privateMessage.Message,
 				define.PrivateMsg,
 				privateMessage.UserId,
-				0, // targetId
+				privateMessage.SelfId, // targetId，这里目标是bot本身
 				privateMessage.MessageId,
 				privateMessage.SelfId,
 			)

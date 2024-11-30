@@ -3,7 +3,7 @@ package calc
 import "sort"
 
 // IsTargetInArray 二分查找
-func IsTargetInArray[T int | float64 | string](target T, array []T) bool {
+func IsTargetInArray[T int | float64 | string | int64](target T, array []T) bool {
 	// 切片必须升序
 	sort.Slice(array, func(i, j int) bool {
 		return array[i] < array[j]

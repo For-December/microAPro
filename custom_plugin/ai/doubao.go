@@ -49,7 +49,7 @@ func ChatMsgWithHistory(groupId int64, ask, prompt string) string {
 	logger.Info(historyArray)
 
 	req, _ := sonic.MarshalString(Req{
-		Model:    "ep-20240603053823-2z64f",
+		Model:    "ep-20241116204553-h57h9",
 		Messages: historyArray,
 		Stream:   false,
 	})

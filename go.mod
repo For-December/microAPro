@@ -3,10 +3,10 @@ module microAPro
 go 1.23.2
 
 require (
-	github.com/bytedance/sonic v1.11.8
+	github.com/bytedance/sonic v1.12.4
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/joho/godotenv v1.5.1
-	github.com/lxzan/gws v1.8.3
+	github.com/lxzan/gws v1.8.8
 	github.com/sirupsen/logrus v1.9.3
 	github.com/valyala/fasthttp v1.54.0
 	github.com/volcengine/volc-sdk-golang v1.0.185
@@ -16,7 +16,7 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/bytedance/sonic/loader v0.1.1 // indirect
+	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect

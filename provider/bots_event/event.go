@@ -5,6 +5,7 @@ import (
 	"github.com/lxzan/gws"
 	"microAPro/constant/config"
 	"microAPro/constant/define"
+	"microAPro/utils/logger"
 	"net/http"
 	"os"
 	"sync"
@@ -29,7 +30,11 @@ func Start(wg *sync.WaitGroup) {
 func Stop() {
 
 	for act, conn := range clients {
-		conn.WriteClose(1000, nil)
+		err := conn.WriteClose(1000, nil)
+		if err != nil {
+			logger.Error(err)
+			return
+		}
 		println("stop event: ", act)
 	}
 }
@@ -51,6 +56,7 @@ func initClients() {
 				"Authorization": []string{"Bearer test-114514"},
 			},
 			ParallelEnabled: false, // 禁用并发(内置并发实现频繁创建协程，不太合适)
+			Logger:          nil,
 		})
 		if err != nil {
 			fmt.Println(err)

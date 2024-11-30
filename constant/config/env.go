@@ -21,6 +21,8 @@ var EnvCfg = struct {
 
 	DouBaoAccessKey string `env:"DOU_BAO_ACCESS_KEY"`
 	DouBaoSecretKey string `env:"DOU_BAO_SECRET_KEY"`
+
+	GroupWhitelist []int64 `env:"GROUP_WHITELIST"`
 }{}
 
 func init() {
@@ -41,5 +43,9 @@ func init() {
 	}
 	if len(EnvCfg.BotAccounts) != len(EnvCfg.BotEndpoints) {
 		panic("BotAccounts cannot match BotEndpoints!")
+	}
+
+	if len(EnvCfg.GroupWhitelist) == 0 {
+		panic("GroupWhitelist cannot be empty!")
 	}
 }
