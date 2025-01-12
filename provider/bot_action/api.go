@@ -22,9 +22,7 @@ func (receiver *BotActionAPI) GetBotAccount() int64 {
 	return receiver.botAccount
 }
 
-func (receiver *BotActionAPI) SendGroupMessage(
-	chain *models.MessageChain,
-	callback ...func(messageId int64)) {
+func (receiver *BotActionAPI) SendGroupMessage(chain *models.MessageChain, callback ...func(messageId int64)) {
 
 	type TParam struct {
 		GroupId    int64                    `json:"group_id"`

@@ -27,7 +27,8 @@ type ContextResult struct {
 
 type PluginHandler func(
 	api *bot_action.BotActionAPI,
-	ctx *models.MessageContext) ContextResult
+	ctx *models.MessageContext,
+) ContextResult
 
 type CallbackFunc struct {
 	AfterEach  []PluginHandler

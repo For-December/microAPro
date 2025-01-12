@@ -38,6 +38,7 @@ func registerCustomPlugins() {
 	//plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.NaiLongCatcher{})
 	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.ColorPic{})
 	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.Img2Img{})
+	plugin_tree.CustomPlugins = append(plugin_tree.CustomPlugins, &custom_plugin.ForwardMsg{})
 
 	// 树形路由匹配注册
 	groupTrie = containers.NewRouteTrie(plugin_tree.CallbackFunc{})
