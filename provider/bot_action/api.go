@@ -51,9 +51,7 @@ func (receiver *BotActionAPI) SendGroupMessage(chain *models.MessageChain, callb
 	}
 
 }
-func (receiver *BotActionAPI) solveSentRes(
-	echoMsg string,
-	callback []func(messageId int64)) {
+func (receiver *BotActionAPI) solveSentRes(echoMsg string, callback []func(messageId int64)) {
 	// 发完消息后处理结果
 	go func() {
 		for {
